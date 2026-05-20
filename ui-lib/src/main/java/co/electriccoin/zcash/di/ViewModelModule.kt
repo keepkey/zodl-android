@@ -65,6 +65,7 @@ import co.electriccoin.zcash.ui.screen.scankeystone.viewmodel.ScanKeystonePCZTVi
 import co.electriccoin.zcash.ui.screen.scankeystone.viewmodel.ScanKeystoneSignInRequestViewModel
 import co.electriccoin.zcash.ui.screen.selectkeystoneaccount.viewmodel.SelectKeystoneAccountViewModel
 import co.electriccoin.zcash.ui.screen.send.SendViewModel
+import co.electriccoin.zcash.ui.screen.signkeepkeytransaction.SignKeepKeyTransactionVM
 import co.electriccoin.zcash.ui.screen.signkeystonetransaction.SignKeystoneTransactionVM
 import co.electriccoin.zcash.ui.screen.support.viewmodel.SupportViewModel
 import co.electriccoin.zcash.ui.screen.swap.SwapVM
@@ -129,6 +130,7 @@ val viewModelModule =
         viewModelOf(::SendViewModel)
         viewModelOf(::WalletBackupViewModel)
         viewModelOf(::FeedbackVM)
+        viewModelOf(::SignKeepKeyTransactionVM)
         viewModelOf(::SignKeystoneTransactionVM)
         viewModelOf(::AccountListVM)
         viewModelOf(::ZashiTopAppBarVM)

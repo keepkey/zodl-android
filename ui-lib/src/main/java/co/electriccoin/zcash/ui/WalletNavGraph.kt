@@ -143,6 +143,8 @@ import co.electriccoin.zcash.ui.screen.selectkeystoneaccount.AndroidSelectKeysto
 import co.electriccoin.zcash.ui.screen.selectkeystoneaccount.SelectKeystoneAccount
 import co.electriccoin.zcash.ui.screen.send.Send
 import co.electriccoin.zcash.ui.screen.send.WrapSend
+import co.electriccoin.zcash.ui.screen.signkeepkeytransaction.SignKeepKeyTransactionArgs
+import co.electriccoin.zcash.ui.screen.signkeepkeytransaction.SignKeepKeyTransactionScreen
 import co.electriccoin.zcash.ui.screen.signkeystonetransaction.SignKeystoneTransactionArgs
 import co.electriccoin.zcash.ui.screen.signkeystonetransaction.SignKeystoneTransactionScreen
 import co.electriccoin.zcash.ui.screen.swap.SwapArgs
@@ -280,6 +282,7 @@ fun NavGraphBuilder.walletNavGraph(
         }
         composable<ConnectKeepKeyArgs> { ConnectKeepKeyScreen() }
         composable<KeepKeyConnectedArgs> { KeepKeyConnectedScreen() }
+        composable<SignKeepKeyTransactionArgs> { SignKeepKeyTransactionScreen() }
         composable<ConnectKeystoneArgs> { ConnectKeystoneScreen() }
         dialogComposable<KeystoneExplainerScreenArgs> { KeystoneExplainerScreen() }
         composable<KeystoneNewOrActiveArgs> { KeystoneNewOrActiveScreen(it.toRoute()) }

@@ -21,6 +21,8 @@
     <!-- Signing -->
     <string name="keepkey_signing_title">Confirm on KeepKey</string>
     <string name="keepkey_signing_subtitle">Review and approve the transaction on your KeepKey device.</string>
+    <string name="sign_keepkey_transaction_positive">Sign Transaction</string>
+    <string name="sign_keepkey_transaction_negative">Cancel</string>
 
     <!-- Errors -->
     <string name="keepkey_error_not_connected">KeepKey not connected</string>
