@@ -5,6 +5,7 @@ import co.electriccoin.zcash.ui.R
 import co.electriccoin.zcash.ui.common.datasource.AccountDataSource
 import co.electriccoin.zcash.ui.common.datasource.SwapTransactionProposal
 import co.electriccoin.zcash.ui.common.datasource.TransactionProposal
+import co.electriccoin.zcash.ui.common.model.KeepKeyAccount
 import co.electriccoin.zcash.ui.common.model.KeystoneAccount
 import co.electriccoin.zcash.ui.common.model.ZashiAccount
 import co.electriccoin.zcash.ui.common.repository.BiometricRepository
@@ -54,6 +55,7 @@ class SubmitProposalUseCase(
             val account = accountDataSource.getSelectedAccount()
             val proposal =
                 when (account) {
+                    is KeepKeyAccount -> error("KeepKey: signing not yet implemented (Phase 2)")
                     is KeystoneAccount -> keystoneProposalRepository.getTransactionProposal()
                     is ZashiAccount -> zashiProposalRepository.getTransactionProposal()
                 }
@@ -65,6 +67,7 @@ class SubmitProposalUseCase(
                 )
             }
             when (account) {
+                is KeepKeyAccount -> error("KeepKey: signing not yet implemented (Phase 2)")
                 is KeystoneAccount -> {
                     navigationRouter.replace(SignKeystoneTransactionArgs)
                 }

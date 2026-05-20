@@ -9,6 +9,7 @@ import co.electriccoin.zcash.ui.NavigationRouter
 import co.electriccoin.zcash.ui.common.datasource.AccountDataSource
 import co.electriccoin.zcash.ui.common.datasource.InsufficientFundsException
 import co.electriccoin.zcash.ui.common.datasource.TexUnsupportedOnKSException
+import co.electriccoin.zcash.ui.common.model.KeepKeyAccount
 import co.electriccoin.zcash.ui.common.model.KeystoneAccount
 import co.electriccoin.zcash.ui.common.model.SwapMode.EXACT_INPUT
 import co.electriccoin.zcash.ui.common.model.SwapMode.EXACT_OUTPUT
@@ -148,6 +149,7 @@ class RequestSwapQuoteUseCase(
             )
 
         when (accountDataSource.getSelectedAccount()) {
+            is KeepKeyAccount -> error("KeepKey: swap signing not yet implemented (Phase 2)")
             is KeystoneAccount -> {
                 when (quote.mode) {
                     EXACT_INPUT -> keystoneProposalRepository.createExactInputSwapProposal(send, quote)

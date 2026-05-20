@@ -6,6 +6,7 @@ import co.electriccoin.zcash.ui.NavigationRouter
 import co.electriccoin.zcash.ui.common.datasource.AccountDataSource
 import co.electriccoin.zcash.ui.common.datasource.InsufficientFundsException
 import co.electriccoin.zcash.ui.common.datasource.TexUnsupportedOnKSException
+import co.electriccoin.zcash.ui.common.model.KeepKeyAccount
 import co.electriccoin.zcash.ui.common.model.KeystoneAccount
 import co.electriccoin.zcash.ui.common.model.ZashiAccount
 import co.electriccoin.zcash.ui.common.repository.KeystoneProposalRepository
@@ -25,6 +26,8 @@ class CreateProposalUseCase(
         val normalized = if (floor) zecSend.copy(amount = zecSend.amount.floor()) else zecSend
         try {
             when (accountDataSource.getSelectedAccount()) {
+                is KeepKeyAccount -> error("KeepKey: signing not yet implemented (Phase 2)")
+
                 is KeystoneAccount -> {
                     keystoneProposalRepository.createProposal(normalized)
                     keystoneProposalRepository.createPCZTFromProposal()

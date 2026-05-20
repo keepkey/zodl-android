@@ -3,4 +3,6 @@
     <string name="review_keystone_transaction_title">Review</string>
     <string name="review_keystone_transaction_positive">Confirm with Keystone</string>
     <string name="review_keystone_transaction_negative">Cancel</string>
+    <string name="review_keepkey_transaction_title">Review</string>
+    <string name="review_keepkey_transaction_positive">Confirm with KeepKey</string>
 </resources>

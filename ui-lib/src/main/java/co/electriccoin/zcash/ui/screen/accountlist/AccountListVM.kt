@@ -45,6 +45,7 @@ class AccountListVM(
                                         subtitle = stringResByAddress(account.unified.address.address),
                                         icon =
                                             when (account) {
+                                                is KeepKeyAccount -> R.drawable.ic_item_keepkey
                                                 is KeystoneAccount -> R.drawable.ic_item_keystone
                                                 is ZashiAccount -> R.drawable.ic_item_zashi
                                             },

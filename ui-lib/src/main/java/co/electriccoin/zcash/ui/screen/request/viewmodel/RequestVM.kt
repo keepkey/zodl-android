@@ -10,6 +10,7 @@ import cash.z.ecc.sdk.extension.ZcashDecimalFormatSymbols
 import co.electriccoin.zcash.spackle.Twig
 import co.electriccoin.zcash.ui.NavigationRouter
 import co.electriccoin.zcash.ui.R
+import co.electriccoin.zcash.ui.common.model.KeepKeyAccount
 import co.electriccoin.zcash.ui.common.model.KeystoneAccount
 import co.electriccoin.zcash.ui.common.model.ZashiAccount
 import co.electriccoin.zcash.ui.common.provider.GetZcashCurrencyProvider
@@ -111,6 +112,7 @@ class RequestVM(
                     RequestState.Memo(
                         icon =
                             when (account) {
+                                is KeepKeyAccount -> co.electriccoin.zcash.ui.design.R.drawable.ic_item_keepkey
                                 is KeystoneAccount -> co.electriccoin.zcash.ui.design.R.drawable.ic_item_keystone
                                 is ZashiAccount -> R.drawable.ic_zec_round_full
                             },

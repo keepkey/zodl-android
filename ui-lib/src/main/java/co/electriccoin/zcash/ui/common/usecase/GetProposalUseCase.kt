@@ -2,6 +2,7 @@ package co.electriccoin.zcash.ui.common.usecase
 
 import co.electriccoin.zcash.ui.common.datasource.AccountDataSource
 import co.electriccoin.zcash.ui.common.datasource.TransactionProposal
+import co.electriccoin.zcash.ui.common.model.KeepKeyAccount
 import co.electriccoin.zcash.ui.common.model.KeystoneAccount
 import co.electriccoin.zcash.ui.common.model.ZashiAccount
 import co.electriccoin.zcash.ui.common.repository.KeystoneProposalRepository
@@ -14,6 +15,7 @@ class GetProposalUseCase(
 ) {
     suspend operator fun invoke(): TransactionProposal =
         when (accountDataSource.getSelectedAccount()) {
+            is KeepKeyAccount -> error("KeepKey: no proposal repository (Phase 2)")
             is KeystoneAccount -> keystoneProposalRepository.getTransactionProposal()
             is ZashiAccount -> zashiProposalRepository.getTransactionProposal()
         }

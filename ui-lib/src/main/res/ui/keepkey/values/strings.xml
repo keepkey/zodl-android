@@ -1,8 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- KeepKey account label shown in account list -->
-    <string name="keepkey_account_name">KeepKey</string>
-
     <!-- Connect screen -->
     <string name="connect_keepkey_title">Connect KeepKey</string>
     <string name="connect_keepkey_subtitle">Plug your KeepKey into this device using a USB OTG cable.</string>

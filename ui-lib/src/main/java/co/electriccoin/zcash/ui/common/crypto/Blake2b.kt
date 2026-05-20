@@ -1,14 +1,18 @@
 package co.electriccoin.zcash.ui.common.crypto
 
+import java.lang.Long.parseUnsignedLong
+
 // Pure-Kotlin BLAKE2b-512 per RFC 7693.
 // Used for F4Jumble (ZIP-316) in UFVK encoding — no Android-API-level restrictions.
 @Suppress("MagicNumber")
 internal object Blake2b {
+    // Kotlin rejects hex literals > Long.MAX_VALUE, so use parseUnsignedLong to get
+    // the correct two's-complement bit patterns for the BLAKE2b initialization vectors.
     private val IV = longArrayOf(
-        0x6a09e667f3bcc908L, 0xbb67ae8584caa73bL,
-        0x3c6ef372fe94f82bL, 0xa54ff53a5f1d36f1L,
-        0x510e527fade682d1L, 0x9b05688c2b3e6c1fL,
-        0x1f83d9abfb41bd6bL, 0x5be0cd19137e2179L,
+        parseUnsignedLong("6a09e667f3bcc908", 16), parseUnsignedLong("bb67ae8584caa73b", 16),
+        parseUnsignedLong("3c6ef372fe94f82b", 16), parseUnsignedLong("a54ff53a5f1d36f1", 16),
+        parseUnsignedLong("510e527fade682d1", 16), parseUnsignedLong("9b05688c2b3e6c1f", 16),
+        parseUnsignedLong("1f83d9abfb41bd6b", 16), parseUnsignedLong("5be0cd19137e2179", 16),
     )
 
     private val SIGMA = arrayOf(

@@ -5,6 +5,7 @@ import cash.z.ecc.android.sdk.model.WalletAddress
 import cash.z.ecc.android.sdk.model.Zatoshi
 import cash.z.ecc.android.sdk.model.ZecSend
 import co.electriccoin.zcash.ui.common.datasource.AccountDataSource
+import co.electriccoin.zcash.ui.common.model.KeepKeyAccount
 import co.electriccoin.zcash.ui.common.model.KeystoneAccount
 import co.electriccoin.zcash.ui.common.model.ZashiAccount
 import co.electriccoin.zcash.ui.common.repository.EphemeralAddressRepository
@@ -31,6 +32,8 @@ class CreateIncreaseEphemeralGapLimitProposalUseCase(
             )
         try {
             when (accountDataSource.getSelectedAccount()) {
+                is KeepKeyAccount -> error("KeepKey: signing not yet implemented (Phase 2)")
+
                 is KeystoneAccount -> {
                     keystoneProposalRepository.createProposal(normalized)
                     keystoneProposalRepository.createPCZTFromProposal()

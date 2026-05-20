@@ -135,9 +135,7 @@ class AccountDataSourceImpl(
                                                 transparent = transparent,
                                                 isSelected = isSelected,
                                                 seedFingerprint =
-                                                    (sdkAccount.purpose as? AccountPurpose.Spending)
-                                                        ?.seedFingerprint
-                                                        ?: byteArrayOf(),
+                                                    sdkAccount.seedFingerprint ?: byteArrayOf(),
                                             )
                                         }
 
