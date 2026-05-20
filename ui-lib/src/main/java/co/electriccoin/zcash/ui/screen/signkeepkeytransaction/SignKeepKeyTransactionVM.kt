@@ -14,7 +14,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.WhileSubscribed
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -28,30 +28,29 @@ class SignKeepKeyTransactionVM(
     private val errorMessage = MutableStateFlow<String?>(null)
 
     val state: StateFlow<SignKeepKeyTransactionState> =
-        isLoading
-            .map { loading ->
-                SignKeepKeyTransactionState(
-                    title = stringRes(R.string.keepkey_signing_title),
-                    subtitle = stringRes(R.string.keepkey_signing_subtitle),
-                    isLoading = loading,
-                    errorMessage = errorMessage.value?.let { stringRes(it) },
-                    positiveButton = ButtonState(
-                        text = stringRes(R.string.sign_keepkey_transaction_positive),
-                        onClick = ::onConfirmClick,
-                        isEnabled = !loading,
-                    ),
-                    negativeButton = ButtonState(
-                        text = stringRes(R.string.sign_keepkey_transaction_negative),
-                        onClick = ::onCancelClick,
-                        isEnabled = !loading,
-                    ),
-                    onBack = ::onBack,
-                )
-            }.stateIn(
-                scope = viewModelScope,
-                started = SharingStarted.WhileSubscribed(ANDROID_STATE_FLOW_TIMEOUT),
-                initialValue = buildIdleState(),
+        combine(isLoading, errorMessage) { loading, error ->
+            SignKeepKeyTransactionState(
+                title = stringRes(R.string.keepkey_signing_title),
+                subtitle = stringRes(R.string.keepkey_signing_subtitle),
+                isLoading = loading,
+                errorMessage = error?.let { stringRes(it) },
+                positiveButton = ButtonState(
+                    text = stringRes(R.string.sign_keepkey_transaction_positive),
+                    onClick = ::onConfirmClick,
+                    isEnabled = !loading,
+                ),
+                negativeButton = ButtonState(
+                    text = stringRes(R.string.sign_keepkey_transaction_negative),
+                    onClick = ::onCancelClick,
+                    isEnabled = !loading,
+                ),
+                onBack = ::onBack,
             )
+        }.stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(ANDROID_STATE_FLOW_TIMEOUT),
+            initialValue = buildIdleState(),
+        )
 
     private fun onConfirmClick() {
         if (isLoading.value) return
@@ -63,8 +62,8 @@ class SignKeepKeyTransactionVM(
                     navigationRouter.replace(TransactionProgressArgs)
                 }
                 .onFailure { e ->
-                    isLoading.update { false }
                     errorMessage.update { e.message ?: "Signing failed" }
+                    isLoading.update { false }
                 }
         }
     }
