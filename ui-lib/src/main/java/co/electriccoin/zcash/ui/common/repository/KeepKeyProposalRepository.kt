@@ -14,13 +14,9 @@ import co.electriccoin.zcash.ui.common.datasource.Zip321TransactionProposal
 import co.electriccoin.zcash.ui.common.model.KeepKeyAccount
 import co.electriccoin.zcash.ui.common.model.SubmitResult
 import co.electriccoin.zcash.ui.common.model.SwapQuote
+import co.electriccoin.zcash.ui.common.provider.KeepKeySigningProtocol
 import co.electriccoin.zcash.ui.common.provider.KeepKeyTransportException
 import co.electriccoin.zcash.ui.common.provider.KeepKeyTransportProvider
-import com.google.protobuf.ByteString
-import com.keepkey.deviceprotocol.KeepKeyMessageZcash.ZcashPCZTAction
-import com.keepkey.deviceprotocol.KeepKeyMessageZcash.ZcashPCZTActionAck
-import com.keepkey.deviceprotocol.KeepKeyMessageZcash.ZcashSignPCZT
-import com.keepkey.deviceprotocol.KeepKeyMessageZcash.ZcashSignedPCZT
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -30,13 +26,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.withContext
-
-private const val MSG_ZCASH_SIGN_PCZT = 1300
-private const val MSG_ZCASH_PCZT_ACTION = 1301
-private const val MSG_ZCASH_PCZT_ACTION_ACK = 1302
-private const val MSG_ZCASH_SIGNED_PCZT = 1303
-private const val MSG_FAILURE = 3
 
 interface KeepKeyProposalRepository {
     val transactionProposal: Flow<TransactionProposal?>
@@ -73,6 +62,7 @@ class KeepKeyProposalRepositoryImpl(
     private val transportProvider: KeepKeyTransportProvider,
 ) : KeepKeyProposalRepository {
     private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
+    private val signingProtocol = KeepKeySigningProtocol(transportProvider)
 
     override val transactionProposal = MutableStateFlow<TransactionProposal?>(null)
     override val submitState = MutableStateFlow<SubmitProposalState?>(null)
@@ -151,7 +141,12 @@ class KeepKeyProposalRepositoryImpl(
                 val redactedPczt = proposalDataSource.redactPcztForSigner(pcztWithProofs.clonePczt())
 
                 // 3. Drive the KeepKey signing exchange over USB, collect RedPallas signatures.
-                val signatures = signWithDevice(redactedPczt, keepKeyAccount)
+                // TODO(sdk): pass nActions from redactedPczt once SDK exposes it; 0 means no Orchard actions for now.
+                val signatures = signingProtocol.sign(
+                    accountIndex = keepKeyAccount.sdkAccount.accountUuid.value.hashCode() and 0x7FFFFFFF,
+                    pcztBytes = redactedPczt.toByteArray(),
+                    nActions = 0, // TODO(sdk): extract from redactedPczt once SDK exposes it
+                )
 
                 // 4. TODO(sdk): Insert the RedPallas signatures into the PCZT.
                 //
@@ -179,73 +174,6 @@ class KeepKeyProposalRepositoryImpl(
                 throw e
             }
         }.await()
-
-    // Drives the ZcashSignPCZT → ZcashPCZTAction × N → ZcashSignedPCZT message exchange.
-    // Returns one 64-byte RedPallas signature per Orchard action.
-    private suspend fun signWithDevice(
-        redactedPczt: Pczt,
-        keepKeyAccount: KeepKeyAccount,
-    ): List<ByteArray> =
-        withContext(Dispatchers.IO) {
-            // TODO(sdk): Extract n_actions, digests, and bundle metadata from redactedPczt.
-            //   Requires a new SDK method, e.g.:
-            //     Synchronizer.getPcztSigningParams(Pczt): PcztSigningParams
-            //   where PcztSigningParams holds nActions, headerDigest, orchardDigest, etc.
-            //   Until available, these are left unset; a real device will reject the message.
-            val initRequest =
-                ZcashSignPCZT.newBuilder()
-                    .setAccount(keepKeyAccount.sdkAccount.accountUuid.value.hashCode() and 0x7FFFFFFF)
-                    .setPcztData(ByteString.copyFrom(redactedPczt.toByteArray()))
-                    // n_actions, total_amount, fee, digests, orchard metadata — TODO(sdk)
-                    .build()
-
-            val (ackType, ackBytes) = transportProvider.sendMessage(MSG_ZCASH_SIGN_PCZT, initRequest.toByteArray())
-            if (ackType == MSG_FAILURE) throw KeepKeyTransportException("Device returned Failure on ZcashSignPCZT")
-            check(ackType == MSG_ZCASH_PCZT_ACTION_ACK) {
-                "Expected ZcashPCZTActionAck ($MSG_ZCASH_PCZT_ACTION_ACK) but got $ackType"
-            }
-
-            var nextIndex = ZcashPCZTActionAck.parseFrom(ackBytes).nextIndex
-
-            // TODO(sdk): Replace with actual nActions from the PCZT.
-            val nActions = 0
-            val signatures = mutableListOf<ByteArray>()
-
-            for (i in 0 until nActions) {
-                check(nextIndex == i) { "Device requested action $nextIndex but host expected $i" }
-
-                // TODO(sdk): Populate action fields from redactedPczt.orchardActions[i].
-                //   Fields: alpha, cvNet, value, isSpend, nullifier, cmx, epk,
-                //           encCompact, encMemo, encNoncompact, rk, outCiphertext.
-                val actionMsg =
-                    ZcashPCZTAction.newBuilder()
-                        .setIndex(i)
-                        .build()
-
-                val (responseType, responseBytes) = transportProvider.sendMessage(
-                    MSG_ZCASH_PCZT_ACTION,
-                    actionMsg.toByteArray(),
-                )
-                if (responseType == MSG_FAILURE) {
-                    throw KeepKeyTransportException("Device returned Failure on ZcashPCZTAction[$i]")
-                }
-
-                when (responseType) {
-                    MSG_ZCASH_PCZT_ACTION_ACK -> {
-                        nextIndex = ZcashPCZTActionAck.parseFrom(responseBytes).nextIndex
-                    }
-
-                    MSG_ZCASH_SIGNED_PCZT -> {
-                        val signed = ZcashSignedPCZT.parseFrom(responseBytes)
-                        signatures.addAll(signed.signaturesList.map { it.toByteArray() })
-                    }
-
-                    else -> error("Unexpected response type $responseType after ZcashPCZTAction[$i]")
-                }
-            }
-
-            signatures
-        }
 
     // TODO(sdk): Replace this stub with a real SDK call once the method is available.
     // See the signAndSubmit() comment above for the required SDK method signature.
