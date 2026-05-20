@@ -1,9 +1,10 @@
 package co.electriccoin.zcash.ui.common.usecase
 
-import co.electriccoin.zcash.ui.NavigationRouter
 import co.electriccoin.zcash.ui.R
 import co.electriccoin.zcash.ui.common.datasource.AccountDataSource
+import co.electriccoin.zcash.ui.common.model.KeepKeyAccount
 import co.electriccoin.zcash.ui.common.model.KeystoneAccount
+import co.electriccoin.zcash.ui.common.model.WalletAccount
 import co.electriccoin.zcash.ui.common.repository.BiometricRepository
 import co.electriccoin.zcash.ui.common.repository.BiometricRequest
 import co.electriccoin.zcash.ui.common.repository.BiometricsCancelledException
@@ -20,26 +21,22 @@ class DisconnectUseCase(
     private val logger = loggableNot("DisconnectUseCase")
 
     @Suppress("TooGenericExceptionCaught")
-    suspend operator fun invoke(keystoneAccount: KeystoneAccount) =
+    suspend operator fun invoke(account: WalletAccount) =
         withContext(Dispatchers.IO) {
             biometricRepository.requestBiometrics(
                 BiometricRequest(message = stringRes(R.string.disconnect_hardware_wallet_biometric_message))
             )
 
-            logger("deleteAccount $keystoneAccount")
-            // Delete the hardware wallet account
-            accountDataSource.deleteAccount(keystoneAccount)
-
+            logger("deleteAccount $account")
+            accountDataSource.deleteAccount(account)
             logger("deleteAccount success")
 
-            // Explicitly select Zashi account after disconnecting Keystone
             val zashiAccount = accountDataSource.getZashiAccount()
             accountDataSource.selectAccount(zashiAccount)
         }
 
-    suspend fun getKeystoneAccount(): KeystoneAccount? =
+    suspend fun getHardwareWalletAccount(): WalletAccount? =
         accountDataSource
             .getAllAccounts()
-            .filterIsInstance<KeystoneAccount>()
-            .firstOrNull()
+            .firstOrNull { it is KeystoneAccount || it is KeepKeyAccount }
 }

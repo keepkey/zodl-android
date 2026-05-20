@@ -4,7 +4,7 @@ import androidx.lifecycle.ViewModel
 import co.electriccoin.zcash.ui.NavigationRouter
 import co.electriccoin.zcash.ui.R
 import co.electriccoin.zcash.ui.common.component.destructive
-import co.electriccoin.zcash.ui.common.model.KeystoneAccount
+import co.electriccoin.zcash.ui.common.model.WalletAccount
 import co.electriccoin.zcash.ui.common.model.LceState
 import co.electriccoin.zcash.ui.common.model.groupLce
 import co.electriccoin.zcash.ui.common.model.mutableLce
@@ -25,22 +25,22 @@ class DisconnectVM(
     private val navigationRouter: NavigationRouter,
     private val errorStateMapper: ErrorMapperUseCase,
 ) : ViewModel() {
-    private val initLce = mutableLce<KeystoneAccount>()
+    private val initLce = mutableLce<WalletAccount>()
     private val confirmationDialogFlow = MutableStateFlow<ZashiConfirmationState?>(null)
     private val disconnectLce = mutableLce<Unit>()
 
     init {
         initLce.execute {
-            val account = disconnect.getKeystoneAccount()
+            val account = disconnect.getHardwareWalletAccount()
             if (account == null) navigationRouter.back()
-            account ?: error("No keystone account")
+            account ?: error("No hardware wallet account")
         }
     }
 
     private val screenStateFlow =
         combine(initLce.state, confirmationDialogFlow, disconnectLce.state) { init, confirmationDialog, lce ->
-            init.success?.let { keystoneAccount ->
-                createState(keystoneAccount, confirmationDialog, lce.loading)
+            init.success?.let { account ->
+                createState(account, confirmationDialog, lce.loading)
             }
         }
 
@@ -56,7 +56,7 @@ class DisconnectVM(
             }.stateIn(this)
 
     private fun createState(
-        keystoneAccount: KeystoneAccount,
+        account: WalletAccount,
         confirmationDialog: ZashiConfirmationState?,
         isLoading: Boolean,
     ): DisconnectState =
@@ -79,7 +79,7 @@ class DisconnectVM(
                     text = stringRes(R.string.disconnect_hardware_wallet_button),
                     style = ButtonStyle.DESTRUCTIVE1,
                     isLoading = isLoading,
-                    onClick = { onDisconnectClick(keystoneAccount) }
+                    onClick = { onDisconnectClick(account) }
                 ),
             confirmationDialog = confirmationDialog,
             onBack = ::onBack,
@@ -87,24 +87,24 @@ class DisconnectVM(
 
     private fun onBack() = navigationRouter.back()
 
-    private fun onDisconnectClick(keystoneAccount: KeystoneAccount) {
-        confirmationDialogFlow.value = createConfirmationState(keystoneAccount)
+    private fun onDisconnectClick(account: WalletAccount) {
+        confirmationDialogFlow.value = createConfirmationState(account)
     }
 
-    private fun createConfirmationState(keystoneAccount: KeystoneAccount): ZashiConfirmationState =
+    private fun createConfirmationState(account: WalletAccount): ZashiConfirmationState =
         ZashiConfirmationState.destructive(
             title = stringRes(R.string.disconnect_hardware_wallet_confirmation_title),
             message = stringRes(R.string.disconnect_hardware_wallet_confirmation_message),
             primaryText = stringRes(R.string.disconnect_hardware_wallet_confirmation_confirm),
             secondaryText = stringRes(R.string.disconnect_hardware_wallet_confirmation_cancel),
-            onPrimary = { onConfirmDisconnect(keystoneAccount) },
+            onPrimary = { onConfirmDisconnect(account) },
             onBack = ::onCancelConfirmation,
         )
 
-    private fun onConfirmDisconnect(keystoneAccount: KeystoneAccount) {
+    private fun onConfirmDisconnect(account: WalletAccount) {
         confirmationDialogFlow.value = null
         disconnectLce.execute {
-            disconnect(keystoneAccount)
+            disconnect(account)
             navigationRouter.backToRoot()
         }
     }
