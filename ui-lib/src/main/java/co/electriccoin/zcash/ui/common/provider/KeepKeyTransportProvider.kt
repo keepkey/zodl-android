@@ -1,13 +1,20 @@
 package co.electriccoin.zcash.ui.common.provider
 
+import android.app.PendingIntent
+import android.content.BroadcastReceiver
 import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
 import android.hardware.usb.UsbConstants
 import android.hardware.usb.UsbDevice
 import android.hardware.usb.UsbDeviceConnection
 import android.hardware.usb.UsbEndpoint
 import android.hardware.usb.UsbInterface
 import android.hardware.usb.UsbManager
+import androidx.core.content.ContextCompat
+import kotlin.coroutines.resume
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
@@ -34,6 +41,7 @@ data class KeepKeyDevice(
 )
 
 interface KeepKeyTransportProvider {
+    suspend fun requestPermission(): Boolean
     suspend fun connect(): KeepKeyDevice
     suspend fun disconnect()
     suspend fun sendMessage(typeId: Int, payload: ByteArray): Pair<Int, ByteArray>
@@ -48,6 +56,38 @@ class KeepKeyTransportProviderImpl(private val context: Context) : KeepKeyTransp
     private var iface: UsbInterface? = null
     private var epIn: UsbEndpoint? = null
     private var epOut: UsbEndpoint? = null
+
+    override suspend fun requestPermission(): Boolean =
+        withContext(Dispatchers.IO) {
+            val usbManager = context.getSystemService(Context.USB_SERVICE) as UsbManager
+            val device = findKeepKey(usbManager) ?: return@withContext false
+            if (usbManager.hasPermission(device)) return@withContext true
+
+            suspendCancellableCoroutine { cont ->
+                val receiver = object : BroadcastReceiver() {
+                    override fun onReceive(ctx: Context, intent: Intent) {
+                        if (ACTION_USB_PERMISSION != intent.action) return
+                        runCatching { context.unregisterReceiver(this) }
+                        val granted = intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED, false)
+                        if (cont.isActive) cont.resume(granted)
+                    }
+                }
+                ContextCompat.registerReceiver(
+                    context,
+                    receiver,
+                    IntentFilter(ACTION_USB_PERMISSION),
+                    ContextCompat.RECEIVER_NOT_EXPORTED,
+                )
+                cont.invokeOnCancellation { runCatching { context.unregisterReceiver(receiver) } }
+                val pendingIntent = PendingIntent.getBroadcast(
+                    context,
+                    0,
+                    Intent(ACTION_USB_PERMISSION),
+                    PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
+                )
+                usbManager.requestPermission(device, pendingIntent)
+            }
+        }
 
     override suspend fun connect(): KeepKeyDevice =
         withContext(Dispatchers.IO) {
@@ -278,5 +318,6 @@ class KeepKeyTransportProviderImpl(private val context: Context) : KeepKeyTransp
 
     private companion object {
         const val MSG_TYPE_GET_FEATURES = 55
+        const val ACTION_USB_PERMISSION = "co.electriccoin.zcash.keepkey.USB_PERMISSION"
     }
 }
