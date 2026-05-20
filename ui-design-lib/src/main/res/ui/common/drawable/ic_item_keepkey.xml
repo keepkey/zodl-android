@@ -1,0 +1,14 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="40dp"
+    android:height="40dp"
+    android:viewportWidth="40"
+    android:viewportHeight="40">
+  <!-- Dark background circle -->
+  <path
+      android:pathData="M0,20C0,8.954 8.954,0 20,0C31.046,0 40,8.954 40,20C40,31.046 31.046,40 20,40C8.954,40 0,31.046 0,20Z"
+      android:fillColor="#1A1A2E"/>
+  <!-- Stylised "K" shape representing KeepKey -->
+  <path
+      android:pathData="M12,10L16,10L16,19L23,10L28,10L20,20L28,30L23,30L16,21L16,30L12,30Z"
+      android:fillColor="#F7931A"/>
+</vector>

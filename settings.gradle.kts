@@ -66,6 +66,7 @@ pluginManagement {
         kotlin("jvm") version (kotlinVersion) apply false
         kotlin("multiplatform") version (kotlinVersion) apply false
         kotlin("plugin.serialization") version (kotlinVersion) apply false
+        id("com.google.protobuf") version (extra["PROTOBUF_GRADLE_PLUGIN_VERSION"].toString()) apply false
     }
 }
 
@@ -206,6 +207,7 @@ dependencyResolutionManagement {
             val keystoneVersion = extra["KEYSTONE_VERSION"].toString()
             val shimmerVersion = extra["SHIMMER_VERSION"].toString()
             val ktorVersion = extra["KTOR_VERSION"].toString()
+            val protobufVersion = extra["PROTOBUF_VERSION"].toString()
 
             // Standalone versions
             version("flank", flankVersion)
@@ -281,6 +283,8 @@ dependencyResolutionManagement {
             library("ktor-negotiation", "io.ktor" ,"ktor-client-content-negotiation").withoutVersion()
             library("ktor-json", "io.ktor" ,"ktor-serialization-kotlinx-json").withoutVersion()
             library("ktor-logging", "io.ktor" ,"ktor-client-logging").withoutVersion()
+            library("protobuf-kotlin-lite", "com.google.protobuf:protobuf-kotlin-lite:$protobufVersion")
+            library("protobuf-protoc", "com.google.protobuf:protoc:$protobufVersion")
 
             // Test libraries
             library("androidx-compose-test-junit", "androidx.compose.ui:ui-test-junit4:$androidxComposeVersion")

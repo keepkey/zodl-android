@@ -11,6 +11,7 @@ plugins {
     id("wtf.emulator.gradle")
     id("secant.emulator-wtf-conventions")
     id("secant.jacoco-conventions")
+    id("com.google.protobuf")
 }
 
 android {
@@ -90,6 +91,7 @@ android {
                     "src/main/res/ui/whats_new",
                     "src/main/res/ui/exchange_rate",
                     "src/main/res/ui/tor",
+                    "src/main/res/ui/keepkey",
                 )
             )
         }
@@ -165,6 +167,24 @@ androidComponents {
     }
 }
 
+protobuf {
+    protoc {
+        artifact = libs.protobuf.protoc.get().toString()
+    }
+    generateProtoTasks {
+        all().forEach { task ->
+            task.builtins {
+                id("java") {
+                    option("lite")
+                }
+                id("kotlin") {
+                    option("lite")
+                }
+            }
+        }
+    }
+}
+
 dependencies {
     implementation(libs.accompanist.permissions)
     implementation(libs.androidx.activity)
@@ -213,6 +233,7 @@ dependencies {
     api(libs.bundles.androidx.biometric)
 
     api(libs.keystone)
+    implementation(libs.protobuf.kotlin.lite)
 
     testImplementation(libs.kotlin.test)
     testImplementation("io.ktor:ktor-client-mock")
