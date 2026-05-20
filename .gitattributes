@@ -1,0 +1,7 @@
+# Fork-only files — always keep our version when merging from upstream.
+# These files exist only on the keepkey fork and must never reach upstream PRs.
+# Feature branches must be created from upstream/main. See docs/contributing.md.
+.github/workflows/upstream-sync.yml merge=ours
+.github/workflows/proto-check.yml merge=ours
+.github/workflows/validate-upstream-ready.yml merge=ours
+.github/proto-hashes.sha256 merge=ours

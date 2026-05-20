@@ -1,4 +1,26 @@
-<!-- Write any additional comments here when opening the pull request -->
+<!-- Describe this change and link any relevant issues -->
+
+---
+
+## KeepKey Integration (skip if this PR does not touch keepkey code)
+
+**Transport / protocol changes**
+- [ ] Proto file hashes in `.github/proto-hashes.sha256` updated if proto files changed (see `docs/firmware-compat.md`)
+- [ ] HID packet framing unit tests pass (`KeepKeyTransportProviderImpl`)
+- [ ] Golden vector tests pass (see `docs/golden-test-vectors.md`)
+
+**Hardware test results** — fill in before marking ready for review:
+
+| Scenario | Result | Notes |
+|---|---|---|
+| Address display on physical KeepKey (USB OTG) | | |
+| Shielded send — sign & broadcast | | |
+| Device disconnected mid-signing | | |
+| Wrong device (seed fingerprint mismatch) rejected | | |
+
+> Hardware tests may be run against the `kkemu` emulator. See `docs/emulator.md`.
+
+---
 
 > **Note**
 >This code review checklist is intended to serve as a starting point for the author and reviewer, although it may not be appropriate for all types of changes (e.g. fixing a spelling typo in documentation).  For more in-depth discussion of how we think about code review, please see [Code Review Guidelines](../blob/main/docs/CODE_REVIEW_GUIDELINES.md).

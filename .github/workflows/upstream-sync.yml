@@ -1,0 +1,96 @@
+name: Sync with Upstream
+
+on:
+  schedule:
+    - cron: '0 9 * * 1'  # Every Monday at 09:00 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Configure git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Fetch upstream
+        run: |
+          git remote add upstream https://github.com/zodl-inc/zodl-android.git
+          git fetch upstream main --no-tags
+
+      - name: Check if sync needed
+        id: check
+        run: |
+          BEHIND=$(git rev-list HEAD..upstream/main --count)
+          UPSTREAM_SHA=$(git rev-parse --short upstream/main)
+          echo "behind=$BEHIND" >> "$GITHUB_OUTPUT"
+          echo "upstream_sha=$UPSTREAM_SHA" >> "$GITHUB_OUTPUT"
+          echo "Upstream is $BEHIND commits ahead (at $UPSTREAM_SHA)"
+
+      - name: Skip if up to date
+        if: steps.check.outputs.behind == '0'
+        run: echo "Fork is up to date with upstream. Nothing to do."
+
+      - name: Create sync branch
+        if: steps.check.outputs.behind != '0'
+        id: branch
+        run: |
+          BRANCH="upstream-sync/$(date +%Y-%m-%d)"
+          echo "name=$BRANCH" >> "$GITHUB_OUTPUT"
+          git checkout -b "$BRANCH"
+
+          CONFLICTS=false
+          if ! git merge upstream/main --no-edit; then
+            CONFLICTS=true
+            git add -A
+            git commit -m "chore: upstream sync $(date +%Y-%m-%d) [conflicts - resolve before merging]"
+          fi
+          echo "conflicts=$CONFLICTS" >> "$GITHUB_OUTPUT"
+
+          git push origin "$BRANCH"
+
+      - name: Open pull request
+        if: steps.check.outputs.behind != '0'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          BRANCH="${{ steps.branch.outputs.name }}"
+          BEHIND="${{ steps.check.outputs.behind }}"
+          SHA="${{ steps.check.outputs.upstream_sha }}"
+          CONFLICTS="${{ steps.branch.outputs.conflicts }}"
+
+          if [ "$CONFLICTS" = "true" ]; then
+            TITLE="chore: upstream sync $(date +%Y-%m-%d) ⚠️ conflicts"
+            CONFLICT_NOTE="> ⚠️ **This PR contains merge conflicts** — resolve them before merging."
+          else
+            TITLE="chore: upstream sync $(date +%Y-%m-%d)"
+            CONFLICT_NOTE="> ✅ Clean merge — no conflicts detected."
+          fi
+
+          gh pr create \
+            --title "$TITLE" \
+            --body "## Upstream Sync
+
+$CONFLICT_NOTE
+
+Automated weekly sync from [zodl-inc/zodl-android](https://github.com/zodl-inc/zodl-android). **${BEHIND} new upstream commits** (@ \`${SHA}\`).
+
+### Checklist
+- [ ] Review upstream changes for impact on the KeepKey integration
+- [ ] Resolve conflict markers if present (see branch \`${BRANCH}\`)
+- [ ] Verify CI passes (Detekt, KtLint, Android lint, unit tests)
+- [ ] Confirm KeepKey-specific files are untouched or intentionally updated
+- [ ] Rebase active feature branches onto \`main\` after merge" \
+            --draft \
+            --base main \
+            --head "$BRANCH"

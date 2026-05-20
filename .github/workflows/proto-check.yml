@@ -1,0 +1,38 @@
+name: Verify Proto Hashes
+
+# Runs whenever proto source files or the hash manifest are changed.
+# Fails if copied proto files don't match the hashes pinned in firmware-compat.md.
+# See docs/firmware-compat.md for instructions on updating the pin.
+
+on:
+  push:
+    paths:
+      - 'ui-lib/src/main/proto/**'
+      - '.github/proto-hashes.sha256'
+  pull_request:
+    paths:
+      - 'ui-lib/src/main/proto/**'
+      - '.github/proto-hashes.sha256'
+
+jobs:
+  verify-proto-hashes:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check for proto files
+        id: probe
+        run: |
+          PROTO_DIR="ui-lib/src/main/proto"
+          if [ -d "$PROTO_DIR" ] && [ "$(ls -A $PROTO_DIR/*.proto 2>/dev/null)" ]; then
+            echo "present=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "present=false" >> "$GITHUB_OUTPUT"
+            echo "No proto files found at $PROTO_DIR — skipping hash check (add proto files to activate)"
+          fi
+
+      - name: Verify SHA256 hashes
+        if: steps.probe.outputs.present == 'true'
+        run: |
+          cd ui-lib/src/main/proto
+          sha256sum --check ../../../../.github/proto-hashes.sha256

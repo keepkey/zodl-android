@@ -1,0 +1,54 @@
+name: Validate Upstream-Ready
+
+# Ensures feature branches do not contain fork-only files that must never
+# appear in upstream PRs. Feature branches must be created from upstream/main
+# (zodl-inc/zodl-android:main), not from this fork's main.
+# See docs/contributing.md for the correct branching strategy.
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  check-no-fork-only-files:
+    runs-on: ubuntu-latest
+    if: startsWith(github.head_ref, 'feature/')
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check for fork-only files in PR diff
+        run: |
+          FORK_ONLY=(
+            ".github/workflows/upstream-sync.yml"
+            ".github/workflows/proto-check.yml"
+            ".github/workflows/validate-upstream-ready.yml"
+            ".github/proto-hashes.sha256"
+          )
+
+          CHANGED=$(git diff --name-only origin/main...HEAD)
+          FOUND=false
+
+          for f in "${FORK_ONLY[@]}"; do
+            if echo "$CHANGED" | grep -qF "$f"; then
+              echo "::error file=$f::Fork-only file must not appear in a feature branch: $f"
+              FOUND=true
+            fi
+          done
+
+          if [ "$FOUND" = "true" ]; then
+            echo ""
+            echo "Feature branches must be created from upstream/main, not this fork's main."
+            echo "These files live only on the fork's main branch and must never reach upstream."
+            echo ""
+            echo "Fix: recreate the branch from upstream/main and cherry-pick your commits."
+            echo "  git fetch upstream"
+            echo "  git checkout -b <branch-name> upstream/main"
+            echo "  git cherry-pick <your-commits>"
+            echo ""
+            echo "See docs/contributing.md for full guidance."
+            exit 1
+          fi
+
+          echo "✅ No fork-only files found in feature branch. Safe to upstream."
