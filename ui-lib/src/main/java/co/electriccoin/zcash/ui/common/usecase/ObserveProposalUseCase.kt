@@ -5,16 +5,17 @@ import co.electriccoin.zcash.ui.common.datasource.SendTransactionProposal
 import co.electriccoin.zcash.ui.common.model.KeepKeyAccount
 import co.electriccoin.zcash.ui.common.model.KeystoneAccount
 import co.electriccoin.zcash.ui.common.model.ZashiAccount
+import co.electriccoin.zcash.ui.common.repository.KeepKeyProposalRepository
 import co.electriccoin.zcash.ui.common.repository.KeystoneProposalRepository
 import co.electriccoin.zcash.ui.common.repository.ZashiProposalRepository
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.flowOf
 
 class ObserveProposalUseCase(
     private val keystoneProposalRepository: KeystoneProposalRepository,
+    private val keepKeyProposalRepository: KeepKeyProposalRepository,
     private val zashiProposalRepository: ZashiProposalRepository,
     private val accountDataSource: AccountDataSource,
 ) {
@@ -24,7 +25,7 @@ class ObserveProposalUseCase(
             .filterNotNull()
             .flatMapLatest {
                 when (it) {
-                    is KeepKeyAccount -> flowOf(null)
+                    is KeepKeyAccount -> keepKeyProposalRepository.transactionProposal
                     is KeystoneAccount -> keystoneProposalRepository.transactionProposal
                     is ZashiAccount -> zashiProposalRepository.transactionProposal
                 }
@@ -38,7 +39,7 @@ class ObserveProposalUseCase(
             .filterNotNull()
             .flatMapLatest {
                 when (it) {
-                    is KeepKeyAccount -> flowOf(null)
+                    is KeepKeyAccount -> keepKeyProposalRepository.transactionProposal
                     is KeystoneAccount -> keystoneProposalRepository.transactionProposal
                     is ZashiAccount -> zashiProposalRepository.transactionProposal
                 }

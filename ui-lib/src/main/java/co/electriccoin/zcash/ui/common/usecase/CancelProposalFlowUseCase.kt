@@ -7,6 +7,7 @@ import co.electriccoin.zcash.ui.common.datasource.ExactOutputSwapTransactionProp
 import co.electriccoin.zcash.ui.common.model.KeepKeyAccount
 import co.electriccoin.zcash.ui.common.model.KeystoneAccount
 import co.electriccoin.zcash.ui.common.model.ZashiAccount
+import co.electriccoin.zcash.ui.common.repository.KeepKeyProposalRepository
 import co.electriccoin.zcash.ui.common.repository.KeystoneProposalRepository
 import co.electriccoin.zcash.ui.common.repository.SwapRepository
 import co.electriccoin.zcash.ui.common.repository.ZashiProposalRepository
@@ -17,6 +18,7 @@ import co.electriccoin.zcash.ui.screen.swap.SwapArgs
 class CancelProposalFlowUseCase(
     private val zashiProposalRepository: ZashiProposalRepository,
     private val keystoneProposalRepository: KeystoneProposalRepository,
+    private val keepKeyProposalRepository: KeepKeyProposalRepository,
     private val navigationRouter: NavigationRouter,
     private val observeClearSend: ObserveClearSendUseCase,
     private val accountDataSource: AccountDataSource,
@@ -30,6 +32,7 @@ class CancelProposalFlowUseCase(
                 is KeystoneAccount -> keystoneProposalRepository.getTransactionProposal()
             }
 
+        keepKeyProposalRepository.clear()
         zashiProposalRepository.clear()
         keystoneProposalRepository.clear()
 
