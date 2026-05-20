@@ -34,7 +34,7 @@ data class KeepKeyDevice(
 )
 
 interface KeepKeyTransportProvider {
-    suspend fun connect(context: Context): KeepKeyDevice
+    suspend fun connect(): KeepKeyDevice
     suspend fun disconnect()
     suspend fun sendMessage(typeId: Int, payload: ByteArray): Pair<Int, ByteArray>
     fun isConnected(): Boolean
@@ -42,14 +42,14 @@ interface KeepKeyTransportProvider {
 
 class KeepKeyTransportException(message: String, cause: Throwable? = null) : Exception(message, cause)
 
-class KeepKeyTransportProviderImpl : KeepKeyTransportProvider {
+class KeepKeyTransportProviderImpl(private val context: Context) : KeepKeyTransportProvider {
     private val mutex = Mutex()
     private var connection: UsbDeviceConnection? = null
     private var iface: UsbInterface? = null
     private var epIn: UsbEndpoint? = null
     private var epOut: UsbEndpoint? = null
 
-    override suspend fun connect(context: Context): KeepKeyDevice =
+    override suspend fun connect(): KeepKeyDevice =
         withContext(Dispatchers.IO) {
             mutex.withLock {
                 val usbManager = context.getSystemService(Context.USB_SERVICE) as UsbManager

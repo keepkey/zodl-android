@@ -5,6 +5,7 @@ import co.electriccoin.zcash.ui.common.viewmodel.AuthenticationViewModel
 import co.electriccoin.zcash.ui.common.viewmodel.OldHomeViewModel
 import co.electriccoin.zcash.ui.common.viewmodel.WalletViewModel
 import co.electriccoin.zcash.ui.screen.ScreenTimeoutVM
+import co.electriccoin.zcash.ui.screen.connectkeepkey.connect.KeepKeyConnectVM
 import co.electriccoin.zcash.ui.screen.accountlist.AccountListVM
 import co.electriccoin.zcash.ui.screen.addressbook.AddressBookVM
 import co.electriccoin.zcash.ui.screen.addressbook.SelectABRecipientVM
@@ -192,6 +193,7 @@ val viewModelModule =
         viewModelOf(::RestoreTorVM)
         viewModelOf(::ResetZashiVM)
         viewModelOf(::DisconnectVM)
+        viewModelOf(::KeepKeyConnectVM)
         viewModelOf(::VoteCoinholderPollingVM)
         viewModelOf(::VoteChainConfigVM)
         viewModelOf(::VoteHowToVoteVM)

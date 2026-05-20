@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Connect screen -->
+    <string name="connect_keepkey_title">Conectar KeepKey</string>
+    <string name="connect_keepkey_subtitle">Conecta tu KeepKey a este dispositivo mediante un cable USB OTG.</string>
+    <string name="connect_keepkey_item_1">Desbloquea tu KeepKey</string>
+    <string name="connect_keepkey_item_2">Conéctalo con el cable USB OTG</string>
+    <string name="connect_keepkey_item_3">Aprueba la conexión en tu dispositivo</string>
+    <string name="connect_keepkey_item_title">Instrucciones:</string>
+    <string name="connect_keepkey_positive">Conectar KeepKey</string>
+
+    <!-- Connected -->
+    <string name="keepkey_connected_subtitle">¡KeepKey Conectado!</string>
+
+    <!-- Firmware check -->
+    <string name="keepkey_firmware_too_old">Por favor actualiza el firmware de tu KeepKey a la versión 7.14.0 o posterior para usar esta función.</string>
+
+    <!-- Seed fingerprint mismatch -->
+    <string name="keepkey_wrong_device">Este KeepKey no coincide con la cuenta conectada. Por favor conecta el dispositivo correcto.</string>
+
+    <!-- Signing -->
+    <string name="keepkey_signing_title">Confirmar en KeepKey</string>
+    <string name="keepkey_signing_subtitle">Revisa y aprueba la transacción en tu dispositivo KeepKey.</string>
+
+    <!-- Errors -->
+    <string name="keepkey_error_not_connected">KeepKey no conectado</string>
+    <string name="keepkey_error_permission_denied">Permiso USB denegado. Por favor permite el acceso a KeepKey.</string>
+    <string name="keepkey_error_signing_failed">La firma de la transacción falló. Por favor inténtalo de nuevo.</string>
+    <string name="keepkey_error_cancelled">Transacción cancelada en el dispositivo.</string>
+</resources>

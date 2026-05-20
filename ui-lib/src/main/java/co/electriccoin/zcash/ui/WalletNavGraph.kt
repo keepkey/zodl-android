@@ -28,6 +28,10 @@ import co.electriccoin.zcash.ui.screen.balances.spendable.SpendableBalanceArgs
 import co.electriccoin.zcash.ui.screen.balances.spendable.SpendableBalanceScreen
 import co.electriccoin.zcash.ui.screen.chooseserver.ChooseServerArgs
 import co.electriccoin.zcash.ui.screen.chooseserver.ChooseServerScreen
+import co.electriccoin.zcash.ui.screen.connectkeepkey.connect.ConnectKeepKeyArgs
+import co.electriccoin.zcash.ui.screen.connectkeepkey.connect.ConnectKeepKeyScreen
+import co.electriccoin.zcash.ui.screen.connectkeepkey.connected.KeepKeyConnectedArgs
+import co.electriccoin.zcash.ui.screen.connectkeepkey.connected.KeepKeyConnectedScreen
 import co.electriccoin.zcash.ui.screen.connectkeystone.connect.ConnectKeystoneArgs
 import co.electriccoin.zcash.ui.screen.connectkeystone.connect.ConnectKeystoneScreen
 import co.electriccoin.zcash.ui.screen.connectkeystone.connected.KeystoneConnectedArgs
@@ -274,6 +278,8 @@ fun NavGraphBuilder.walletNavGraph(
                 backStackEntry.arguments?.getInt(NavigationArgs.ADDRESS_TYPE) ?: ReceiveAddressType.Unified.ordinal
             RequestScreen(addressType)
         }
+        composable<ConnectKeepKeyArgs> { ConnectKeepKeyScreen() }
+        composable<KeepKeyConnectedArgs> { KeepKeyConnectedScreen() }
         composable<ConnectKeystoneArgs> { ConnectKeystoneScreen() }
         dialogComposable<KeystoneExplainerScreenArgs> { KeystoneExplainerScreen() }
         composable<KeystoneNewOrActiveArgs> { KeystoneNewOrActiveScreen(it.toRoute()) }

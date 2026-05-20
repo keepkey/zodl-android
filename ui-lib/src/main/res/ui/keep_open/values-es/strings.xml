@@ -6,6 +6,12 @@
     <string name="keep_open_bullet_1">Mantén la app de Zodl abierta con la pantalla del teléfono activa.</string>
     <string name="keep_open_bullet_2">Para evitar que la pantalla se apague, desactiva el modo de ahorro de energía y mantén el teléfono conectado a la corriente.</string>
 
+    <!-- KeepKey add flow -->
+    <string name="keep_open_keepkey_description">Zodl está escaneando la cadena de bloques para recuperar tus transacciones. Las billeteras más antiguas pueden tardar horas en completar la sincronización. Sigue estos pasos para evitar interrupciones:</string>
+    <string name="keep_open_keepkey_subtitle">Tu billetera se está sincronizando.</string>
+    <string name="keep_open_keepkey_warning">No podrás usar tus fondos de Zodl hasta que tu billetera KeepKey esté sincronizada.</string>
+    <string name="keep_open_keepkey_checkbox">Mantener la pantalla encendida mientras se sincroniza</string>
+
     <!-- Keystone add flow -->
     <string name="keep_open_keystone_description">Zodl está escaneando la cadena de bloques para recuperar tus transacciones. Las billeteras más antiguas pueden tardar horas en completar la sincronización. Sigue estos pasos para evitar interrupciones:</string>
     <string name="keep_open_keystone_subtitle">Tu billetera se está sincronizando.</string>
