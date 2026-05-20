@@ -44,4 +44,10 @@
 
     <!-- Wallet Birthday Height -->
     <string name="keepkey_wbh_confirm_button">Connect</string>
+
+    <!-- Select KeepKey Account -->
+    <string name="select_keepkey_account_title">Confirm Account to Access</string>
+    <string name="select_keepkey_account_subtitle">Review the KeepKey account before connecting. Once connected, you\'ll be able to sign transactions with your hardware wallet.</string>
+    <string name="select_keepkey_account_default">KeepKey Wallet</string>
+    <string name="select_keepkey_account_positive">Connect</string>
 </resources>

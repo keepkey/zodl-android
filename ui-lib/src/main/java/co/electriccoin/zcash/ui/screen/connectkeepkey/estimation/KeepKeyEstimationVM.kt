@@ -2,7 +2,6 @@ package co.electriccoin.zcash.ui.screen.connectkeepkey.estimation
 
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.lifecycle.ViewModel
-import cash.z.ecc.android.sdk.model.BlockHeight
 import co.electriccoin.zcash.ui.NavigationRouter
 import co.electriccoin.zcash.ui.R
 import co.electriccoin.zcash.ui.common.model.LceState
@@ -10,20 +9,21 @@ import co.electriccoin.zcash.ui.common.model.guardLoading
 import co.electriccoin.zcash.ui.common.model.mutableLce
 import co.electriccoin.zcash.ui.common.model.stateIn
 import co.electriccoin.zcash.ui.common.model.withLce
-import co.electriccoin.zcash.ui.common.usecase.ConnectKeepKeyUseCase
 import co.electriccoin.zcash.ui.common.usecase.ErrorMapperUseCase
+import co.electriccoin.zcash.ui.common.usecase.GetKeepKeyOrchardFVKUseCase
 import co.electriccoin.zcash.ui.design.component.ButtonState
 import co.electriccoin.zcash.ui.design.component.IconButtonState
 import co.electriccoin.zcash.ui.design.util.stringRes
 import co.electriccoin.zcash.ui.design.util.stringResByNumber
 import co.electriccoin.zcash.ui.screen.common.EstimatedBlockHeightState
 import co.electriccoin.zcash.ui.screen.heightinfo.HeightInfoArgs
+import co.electriccoin.zcash.ui.screen.selectkeepkeyaccount.SelectKeepKeyAccountArgs
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 
 class KeepKeyEstimationVM(
     private val args: KeepKeyEstimationArgs,
-    private val connectKeepKey: ConnectKeepKeyUseCase,
+    private val getKeepKeyOrchardFVK: GetKeepKeyOrchardFVKUseCase,
     private val navigationRouter: NavigationRouter,
     private val errorStateMapper: ErrorMapperUseCase,
 ) : ViewModel() {
@@ -63,10 +63,20 @@ class KeepKeyEstimationVM(
 
     private fun onConfirmClick() =
         connectLce.execute {
-            connectKeepKey(birthday = BlockHeight.new(args.blockHeight))
+            val fvkData = getKeepKeyOrchardFVK()
+            navigationRouter.forward(
+                SelectKeepKeyAccountArgs(
+                    ufvk = fvkData.ufvk,
+                    seedFingerprintHex = fvkData.seedFingerprint.toHex(),
+                    unifiedAddress = fvkData.unifiedAddress,
+                    birthday = args.blockHeight,
+                )
+            )
         }
 
     private fun onInfoClick() = navigationRouter.forward(HeightInfoArgs)
 
     private fun onBack() = connectLce.guardLoading { navigationRouter.back() }
+
+    private fun ByteArray.toHex() = joinToString("") { "%02x".format(it) }
 }

@@ -11,7 +11,8 @@ import co.electriccoin.zcash.ui.common.usecase.ConfirmResyncUseCase
 import co.electriccoin.zcash.ui.common.usecase.CopyToClipboardUseCase
 import co.electriccoin.zcash.ui.common.usecase.CreateFlexaTransactionUseCase
 import co.electriccoin.zcash.ui.common.usecase.CreateIncreaseEphemeralGapLimitProposalUseCase
-import co.electriccoin.zcash.ui.common.usecase.ConnectKeepKeyUseCase
+import co.electriccoin.zcash.ui.common.usecase.GetKeepKeyOrchardFVKUseCase
+import co.electriccoin.zcash.ui.common.usecase.ImportKeepKeyAccountUseCase
 import co.electriccoin.zcash.ui.common.usecase.CreateKeystoneAccountUseCase
 import co.electriccoin.zcash.ui.common.usecase.CreateKeystoneProposalPCZTEncoderUseCase
 import co.electriccoin.zcash.ui.common.usecase.CreateOrUpdateTransactionNoteUseCase
@@ -201,7 +202,8 @@ val useCaseModule =
         factoryOf(::ObserveZashiAccountUseCase)
         factoryOf(::GetZashiAccountUseCase)
         factoryOf(::CreateKeystoneAccountUseCase)
-        factoryOf(::ConnectKeepKeyUseCase)
+        factoryOf(::GetKeepKeyOrchardFVKUseCase)
+        factoryOf(::ImportKeepKeyAccountUseCase)
         factoryOf(::DeriveKeystoneAccountUnifiedAddressUseCase)
         factoryOf(::ParseKeystoneUrToZashiAccountsUseCase)
         factoryOf(::GetExchangeRateUseCase)

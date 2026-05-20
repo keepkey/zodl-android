@@ -40,6 +40,8 @@ import co.electriccoin.zcash.ui.screen.connectkeepkey.height.KeepKeyHeightArgs
 import co.electriccoin.zcash.ui.screen.connectkeepkey.height.KeepKeyWBHScreen
 import co.electriccoin.zcash.ui.screen.connectkeepkey.neworactive.KeepKeyNewOrActiveArgs
 import co.electriccoin.zcash.ui.screen.connectkeepkey.neworactive.KeepKeyNewOrActiveScreen
+import co.electriccoin.zcash.ui.screen.selectkeepkeyaccount.SelectKeepKeyAccountArgs
+import co.electriccoin.zcash.ui.screen.selectkeepkeyaccount.SelectKeepKeyAccountScreen
 import co.electriccoin.zcash.ui.screen.connectkeystone.connect.ConnectKeystoneArgs
 import co.electriccoin.zcash.ui.screen.connectkeystone.connect.ConnectKeystoneScreen
 import co.electriccoin.zcash.ui.screen.connectkeystone.connected.KeystoneConnectedArgs
@@ -294,6 +296,7 @@ fun NavGraphBuilder.walletNavGraph(
         composable<KeepKeyEstimationArgs> { KeepKeyFirstTransactionEstimationScreen(it.toRoute()) }
         composable<KeepKeyHeightArgs> { KeepKeyWBHScreen() }
         composable<KeepKeyConnectedArgs> { KeepKeyConnectedScreen() }
+        composable<SelectKeepKeyAccountArgs> { SelectKeepKeyAccountScreen(it.toRoute()) }
         composable<SignKeepKeyTransactionArgs> { SignKeepKeyTransactionScreen() }
         composable<ConnectKeystoneArgs> { ConnectKeystoneScreen() }
         dialogComposable<KeystoneExplainerScreenArgs> { KeystoneExplainerScreen() }

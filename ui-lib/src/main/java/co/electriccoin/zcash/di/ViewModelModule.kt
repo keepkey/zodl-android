@@ -10,6 +10,7 @@ import co.electriccoin.zcash.ui.screen.connectkeepkey.date.KeepKeyDateVM
 import co.electriccoin.zcash.ui.screen.connectkeepkey.estimation.KeepKeyEstimationVM
 import co.electriccoin.zcash.ui.screen.connectkeepkey.height.KeepKeyHeightVM
 import co.electriccoin.zcash.ui.screen.connectkeepkey.neworactive.KeepKeyNewOrActiveVM
+import co.electriccoin.zcash.ui.screen.selectkeepkeyaccount.viewmodel.SelectKeepKeyAccountViewModel
 import co.electriccoin.zcash.ui.screen.accountlist.AccountListVM
 import co.electriccoin.zcash.ui.screen.addressbook.AddressBookVM
 import co.electriccoin.zcash.ui.screen.addressbook.SelectABRecipientVM
@@ -204,6 +205,7 @@ val viewModelModule =
         viewModelOf(::KeepKeyDateVM)
         viewModelOf(::KeepKeyEstimationVM)
         viewModelOf(::KeepKeyHeightVM)
+        viewModelOf(::SelectKeepKeyAccountViewModel)
         viewModelOf(::VoteCoinholderPollingVM)
         viewModelOf(::VoteChainConfigVM)
         viewModelOf(::VoteHowToVoteVM)
