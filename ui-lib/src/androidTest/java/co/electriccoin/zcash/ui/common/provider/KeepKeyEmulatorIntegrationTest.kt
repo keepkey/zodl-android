@@ -6,10 +6,11 @@ import kotlinx.coroutines.runBlocking
 import org.junit.Assume
 import org.junit.Before
 import org.junit.Test
-import java.net.ConnectException
 import java.net.URL
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
+import kotlin.test.assertTrue
 
 /**
  * ZA-70: Instrumented integration tests against the KeepKey firmware emulator.
@@ -171,6 +172,160 @@ class KeepKeyEmulatorIntegrationTest {
         }
     }
 
+    // --- PCZT signing (ZA-71) ---
+
+    @Test
+    fun singleActionSigningReturnsOneSig() = runBlocking {
+        debugLink.loadDevice(MNEMONIC_ALL_ALL)
+        transport.connect()
+        val protocol = KeepKeySigningProtocol(transport)
+
+        val sigs = protocol.sign(
+            accountIndex = 0,
+            pcztBytes = ByteArray(0),
+            actions = listOf(makeAction()),
+            totalAmount = 10_000L,
+            fee = 1_000L,
+        )
+
+        assertEquals(1, sigs.size, "Expected 1 signature for 1 action")
+    }
+
+    @Test
+    fun singleActionSignatureIs64Bytes() = runBlocking {
+        debugLink.loadDevice(MNEMONIC_ALL_ALL)
+        transport.connect()
+        val protocol = KeepKeySigningProtocol(transport)
+
+        val sigs = protocol.sign(
+            accountIndex = 0,
+            pcztBytes = ByteArray(0),
+            actions = listOf(makeAction(sighashByte = 0xAB.toByte())),
+            totalAmount = 10_000L,
+            fee = 1_000L,
+        )
+
+        assertEquals(64, sigs[0].size, "RedPallas signature must be exactly 64 bytes")
+    }
+
+    @Test
+    fun singleActionSignatureIsNonZero() = runBlocking {
+        debugLink.loadDevice(MNEMONIC_ALL_ALL)
+        transport.connect()
+        val protocol = KeepKeySigningProtocol(transport)
+
+        val sigs = protocol.sign(
+            accountIndex = 0,
+            pcztBytes = ByteArray(0),
+            actions = listOf(makeAction()),
+            totalAmount = 10_000L,
+            fee = 1_000L,
+        )
+
+        assertFalse(sigs[0].all { it == 0.toByte() }, "Signature must not be all-zero")
+    }
+
+    @Test
+    fun multipleActionsReturnCorrectCount() = runBlocking {
+        debugLink.loadDevice(MNEMONIC_ALL_ALL)
+        transport.connect()
+        val protocol = KeepKeySigningProtocol(transport)
+
+        val sigs = protocol.sign(
+            accountIndex = 0,
+            pcztBytes = ByteArray(0),
+            actions = listOf(
+                makeAction(sighashByte = 0x11.toByte()),
+                makeAction(sighashByte = 0x22.toByte()),
+                makeAction(sighashByte = 0x33.toByte()),
+            ),
+            totalAmount = 30_000L,
+            fee = 1_000L,
+        )
+
+        assertEquals(3, sigs.size, "Expected 3 signatures for 3 actions")
+        sigs.forEachIndexed { i, sig -> assertEquals(64, sig.size, "Signature[$i] must be 64 bytes") }
+    }
+
+    @Test
+    fun differentSighashesProduceDifferentSignatures() = runBlocking {
+        debugLink.loadDevice(MNEMONIC_ALL_ALL)
+        transport.connect()
+
+        val protocol1 = KeepKeySigningProtocol(transport)
+        val sigs1 = protocol1.sign(
+            accountIndex = 0,
+            pcztBytes = ByteArray(0),
+            actions = listOf(makeAction(sighashByte = 0xAA.toByte())),
+            totalAmount = 10_000L,
+            fee = 1_000L,
+        )
+
+        // Reload device so the session is clean for the second call.
+        debugLink.loadDevice(MNEMONIC_ALL_ALL)
+        transport.connect()
+
+        val protocol2 = KeepKeySigningProtocol(transport)
+        val sigs2 = protocol2.sign(
+            accountIndex = 0,
+            pcztBytes = ByteArray(0),
+            actions = listOf(makeAction(sighashByte = 0xBB.toByte())),
+            totalAmount = 10_000L,
+            fee = 1_000L,
+        )
+
+        assertFalse(
+            sigs1[0].contentEquals(sigs2[0]),
+            "Different sighashes must produce different signatures",
+        )
+    }
+
+    @Test
+    fun differentAccountsProduceDifferentSignatures() = runBlocking {
+        val sighash = ByteArray(32) { 0xCD.toByte() }
+        val alpha = ByteArray(32) { 0x01.toByte() }
+
+        debugLink.loadDevice(MNEMONIC_ALL_ALL)
+        transport.connect()
+        val sigs0 = KeepKeySigningProtocol(transport).sign(
+            accountIndex = 0,
+            pcztBytes = ByteArray(0),
+            actions = listOf(OrchardActionData(alpha = alpha, sighash = sighash, value = 10_000L)),
+            totalAmount = 10_000L,
+            fee = 1_000L,
+        )
+
+        debugLink.loadDevice(MNEMONIC_ALL_ALL)
+        transport.connect()
+        val sigs1 = KeepKeySigningProtocol(transport).sign(
+            accountIndex = 1,
+            pcztBytes = ByteArray(0),
+            actions = listOf(OrchardActionData(alpha = alpha, sighash = sighash, value = 10_000L)),
+            totalAmount = 10_000L,
+            fee = 1_000L,
+        )
+
+        assertFalse(
+            sigs0[0].contentEquals(sigs1[0]),
+            "Different account indices must produce different signatures",
+        )
+    }
+
+    @Test
+    fun zeroActionsReturnsEmptyList() = runBlocking {
+        debugLink.loadDevice(MNEMONIC_ALL_ALL)
+        transport.connect()
+        val protocol = KeepKeySigningProtocol(transport)
+
+        val sigs = protocol.sign(
+            accountIndex = 0,
+            pcztBytes = ByteArray(0),
+            nActions = 0,
+        )
+
+        assertTrue(sigs.isEmpty(), "Zero actions must return empty signature list")
+    }
+
     // --- Constants ---
 
     private companion object {
@@ -186,6 +341,22 @@ class KeepKeyEmulatorIntegrationTest {
         const val MSG_ZCASH_ORCHARD_FVK = 1305
 
         fun ByteArray.toHex() = joinToString("") { "%02x".format(it) }
+
+        /**
+         * Build a minimal [OrchardActionData] for use in signing tests.
+         * [alphaByte] and [sighashByte] fill all 32 bytes of their respective fields.
+         */
+        fun makeAction(
+            alphaByte: Byte = 0x01.toByte(),
+            sighashByte: Byte = 0xAB.toByte(),
+            value: Long = 10_000L,
+            isSpend: Boolean = true,
+        ) = OrchardActionData(
+            alpha = ByteArray(32) { alphaByte },
+            sighash = ByteArray(32) { sighashByte },
+            value = value,
+            isSpend = isSpend,
+        )
 
         fun isBridgeReachable(baseUrl: String): Boolean =
             runCatching {
