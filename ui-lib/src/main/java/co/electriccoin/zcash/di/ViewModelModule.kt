@@ -6,6 +6,10 @@ import co.electriccoin.zcash.ui.common.viewmodel.OldHomeViewModel
 import co.electriccoin.zcash.ui.common.viewmodel.WalletViewModel
 import co.electriccoin.zcash.ui.screen.ScreenTimeoutVM
 import co.electriccoin.zcash.ui.screen.connectkeepkey.connect.KeepKeyConnectVM
+import co.electriccoin.zcash.ui.screen.connectkeepkey.date.KeepKeyDateVM
+import co.electriccoin.zcash.ui.screen.connectkeepkey.estimation.KeepKeyEstimationVM
+import co.electriccoin.zcash.ui.screen.connectkeepkey.height.KeepKeyHeightVM
+import co.electriccoin.zcash.ui.screen.connectkeepkey.neworactive.KeepKeyNewOrActiveVM
 import co.electriccoin.zcash.ui.screen.accountlist.AccountListVM
 import co.electriccoin.zcash.ui.screen.addressbook.AddressBookVM
 import co.electriccoin.zcash.ui.screen.addressbook.SelectABRecipientVM
@@ -196,6 +200,10 @@ val viewModelModule =
         viewModelOf(::ResetZashiVM)
         viewModelOf(::DisconnectVM)
         viewModelOf(::KeepKeyConnectVM)
+        viewModelOf(::KeepKeyNewOrActiveVM)
+        viewModelOf(::KeepKeyDateVM)
+        viewModelOf(::KeepKeyEstimationVM)
+        viewModelOf(::KeepKeyHeightVM)
         viewModelOf(::VoteCoinholderPollingVM)
         viewModelOf(::VoteChainConfigVM)
         viewModelOf(::VoteHowToVoteVM)

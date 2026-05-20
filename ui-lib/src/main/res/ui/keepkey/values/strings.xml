@@ -29,4 +29,19 @@
     <string name="keepkey_error_permission_denied">USB permission denied. Please allow access to KeepKey.</string>
     <string name="keepkey_error_signing_failed">Transaction signing failed. Please try again.</string>
     <string name="keepkey_error_cancelled">Transaction cancelled on device.</string>
+
+    <!-- New or Active Device -->
+    <string name="keepkey_new_or_active_subtitle">New or Active Device?</string>
+    <string name="keepkey_new_or_active_message">Connecting to a KeepKey that was previously connected to Zodl will require synchronization to discover your transaction history. We\'ll guide you through it.</string>
+    <string name="keepkey_new_device_button">Connect new device</string>
+    <string name="keepkey_active_device_button">Connect active device</string>
+
+    <!-- First Transaction (Birthday) -->
+    <string name="keepkey_first_transaction_message">Entering the block height at which your wallet was created ensures that the correct number of blocks will be scanned. If you\'re not sure, choose an earlier date.</string>
+
+    <!-- First Transaction Estimation -->
+    <string name="keepkey_first_transaction_estimation_confirm">Connect</string>
+
+    <!-- Wallet Birthday Height -->
+    <string name="keepkey_wbh_confirm_button">Connect</string>
 </resources>

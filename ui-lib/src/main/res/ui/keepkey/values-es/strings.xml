@@ -29,4 +29,19 @@
     <string name="keepkey_error_permission_denied">Permiso USB denegado. Por favor permite el acceso a KeepKey.</string>
     <string name="keepkey_error_signing_failed">La firma de la transacción falló. Por favor inténtalo de nuevo.</string>
     <string name="keepkey_error_cancelled">Transacción cancelada en el dispositivo.</string>
+
+    <!-- New or Active Device -->
+    <string name="keepkey_new_or_active_subtitle">¿Dispositivo Nuevo o Activo?</string>
+    <string name="keepkey_new_or_active_message">Conectar un KeepKey que ya fue conectado anteriormente a Zodl requerirá sincronización para descubrir tu historial de transacciones. Te guiaremos en el proceso.</string>
+    <string name="keepkey_new_device_button">Conectar nuevo dispositivo</string>
+    <string name="keepkey_active_device_button">Conectar dispositivo activo</string>
+
+    <!-- First Transaction (Birthday) -->
+    <string name="keepkey_first_transaction_message">Ingresar la altura de bloque en que se creó tu billetera asegura que se escanee el número correcto de bloques. Si no estás seguro, elige una fecha anterior.</string>
+
+    <!-- First Transaction Estimation -->
+    <string name="keepkey_first_transaction_estimation_confirm">Conectar</string>
+
+    <!-- Wallet Birthday Height -->
+    <string name="keepkey_wbh_confirm_button">Conectar</string>
 </resources>
