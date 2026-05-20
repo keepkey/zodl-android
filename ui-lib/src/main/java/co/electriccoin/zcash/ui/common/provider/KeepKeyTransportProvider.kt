@@ -22,15 +22,6 @@ import kotlinx.coroutines.withContext
 private const val KEEPKEY_VID = 0x2B24
 private const val KEEPKEY_PID = 0x0001
 
-private const val PACKET_SIZE = 64
-private const val FRAME_MARKER = 0x3F.toByte()
-
-// First packet: 1 (marker) + 2 (type) + 4 (length) = 7 header bytes → 57 payload bytes
-private const val FIRST_PACKET_PAYLOAD = 57
-
-// Continuation packets: 1 (marker) → 63 payload bytes
-private const val CONT_PACKET_PAYLOAD = 63
-
 private const val USB_TIMEOUT_MS = 10_000
 
 data class KeepKeyDevice(
@@ -165,64 +156,19 @@ class KeepKeyTransportProviderImpl(private val context: Context) : KeepKeyTransp
         }
     }
 
-    private fun buildPackets(typeId: Int, payload: ByteArray): List<ByteArray> {
-        val packets = mutableListOf<ByteArray>()
-
-        // First packet: marker + type (2) + length (4) + up to 57 payload bytes
-        val first = ByteArray(PACKET_SIZE)
-        first[0] = FRAME_MARKER
-        first[1] = ((typeId shr 8) and 0xFF).toByte()
-        first[2] = (typeId and 0xFF).toByte()
-        first[3] = ((payload.size shr 24) and 0xFF).toByte()
-        first[4] = ((payload.size shr 16) and 0xFF).toByte()
-        first[5] = ((payload.size shr 8) and 0xFF).toByte()
-        first[6] = (payload.size and 0xFF).toByte()
-        val firstChunk = minOf(FIRST_PACKET_PAYLOAD, payload.size)
-        System.arraycopy(payload, 0, first, 7, firstChunk)
-        packets.add(first)
-
-        // Continuation packets
-        var offset = firstChunk
-        while (offset < payload.size) {
-            val cont = ByteArray(PACKET_SIZE)
-            cont[0] = FRAME_MARKER
-            val chunk = minOf(CONT_PACKET_PAYLOAD, payload.size - offset)
-            System.arraycopy(payload, offset, cont, 1, chunk)
-            packets.add(cont)
-            offset += chunk
-        }
-
-        return packets
-    }
+    private fun buildPackets(typeId: Int, payload: ByteArray): List<ByteArray> =
+        buildKeepKeyPackets(typeId, payload)
 
     private fun readPackets(conn: UsbDeviceConnection, ep: UsbEndpoint): Pair<Int, ByteArray> {
         val first = ByteArray(PACKET_SIZE)
         val n = conn.bulkTransfer(ep, first, PACKET_SIZE, USB_TIMEOUT_MS)
         if (n < 0) throw KeepKeyTransportException("USB read failed (bulkTransfer returned $n)")
-        if (first[0] != FRAME_MARKER) throw KeepKeyTransportException("Invalid framing marker: 0x${first[0].toInt().and(0xFF).toString(16)}")
-
-        val typeId = ((first[1].toInt() and 0xFF) shl 8) or (first[2].toInt() and 0xFF)
-        val totalLen = ((first[3].toInt() and 0xFF) shl 24) or
-            ((first[4].toInt() and 0xFF) shl 16) or
-            ((first[5].toInt() and 0xFF) shl 8) or
-            (first[6].toInt() and 0xFF)
-
-        val buffer = ByteArray(totalLen)
-        val firstChunk = minOf(FIRST_PACKET_PAYLOAD, totalLen)
-        System.arraycopy(first, 7, buffer, 0, firstChunk)
-
-        var received = firstChunk
-        while (received < totalLen) {
+        return parseKeepKeyPackets(first) {
             val cont = ByteArray(PACKET_SIZE)
             val r = conn.bulkTransfer(ep, cont, PACKET_SIZE, USB_TIMEOUT_MS)
             if (r < 0) throw KeepKeyTransportException("USB read continuation failed")
-            if (cont[0] != FRAME_MARKER) throw KeepKeyTransportException("Invalid continuation marker")
-            val chunk = minOf(CONT_PACKET_PAYLOAD, totalLen - received)
-            System.arraycopy(cont, 1, buffer, received, chunk)
-            received += chunk
+            cont
         }
-
-        return Pair(typeId, buffer)
     }
 
     // GetFeatures (type 55 in messages.proto) → Features (type 17)
