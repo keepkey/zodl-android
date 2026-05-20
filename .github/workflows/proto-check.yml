@@ -1,7 +1,7 @@
 name: Verify Proto Hashes
 
 # Runs whenever proto source files or the hash manifest are changed.
-# Fails if copied proto files don't match the hashes pinned in firmware-compat.md.
+# Fails if copied proto files don't match the hashes pinned in .github/proto-hashes.sha256.
 # See docs/firmware-compat.md for instructions on updating the pin.
 
 on:
@@ -34,5 +34,10 @@ jobs:
       - name: Verify SHA256 hashes
         if: steps.probe.outputs.present == 'true'
         run: |
+          HASH_FILE=".github/proto-hashes.sha256"
+          if [ ! -f "$HASH_FILE" ]; then
+            echo "No $HASH_FILE found (feature branch without fork-only files) — skipping hash check"
+            exit 0
+          fi
           cd ui-lib/src/main/proto
-          sha256sum --check ../../../../.github/proto-hashes.sha256
+          sha256sum --check "../../../../$HASH_FILE"
