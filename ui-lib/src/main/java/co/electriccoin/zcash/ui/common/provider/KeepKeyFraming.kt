@@ -14,6 +14,7 @@ internal const val CONT_PACKET_PAYLOAD = 63
  * protocol. The first packet carries a 7-byte header (marker | type | length); subsequent packets
  * carry a 1-byte marker followed by up to 63 payload bytes.
  */
+@Suppress("MagicNumber")
 internal fun buildKeepKeyPackets(typeId: Int, payload: ByteArray): List<ByteArray> {
     val packets = mutableListOf<ByteArray>()
 
@@ -48,6 +49,7 @@ internal fun buildKeepKeyPackets(typeId: Int, payload: ByteArray): List<ByteArra
  *
  * @throws KeepKeyTransportException if framing markers are invalid.
  */
+@Suppress("MagicNumber")
 internal fun parseKeepKeyPackets(
     firstPacket: ByteArray,
     nextPacket: () -> ByteArray,

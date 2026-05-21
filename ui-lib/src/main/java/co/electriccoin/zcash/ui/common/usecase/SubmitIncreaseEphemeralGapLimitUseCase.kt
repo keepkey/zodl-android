@@ -42,7 +42,10 @@ class SubmitIncreaseEphemeralGapLimitUseCase(
                     )
             )
             when (accountDataSource.getSelectedAccount()) {
-                is KeepKeyAccount -> error("KeepKey: signing not yet implemented (Phase 2)")
+                is KeepKeyAccount -> {
+                    error("KeepKey: signing not yet implemented (Phase 2)")
+                }
+
                 is KeystoneAccount -> {
                     navigationRouter.replace(SignKeystoneTransactionArgs)
                 }

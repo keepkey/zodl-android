@@ -65,7 +65,10 @@ class OnZip321ScannedUseCase(
         try {
             val proposal =
                 when (accountDataSource.getSelectedAccount()) {
-                    is KeepKeyAccount -> error("KeepKey: ZIP-321 signing not yet implemented (Phase 2)")
+                    is KeepKeyAccount -> {
+                        error("KeepKey: ZIP-321 signing not yet implemented (Phase 2)")
+                    }
+
                     is KeystoneAccount -> {
                         val result = keystoneProposalRepository.createZip321Proposal(zip321.zip321Uri)
                         keystoneProposalRepository.createPCZTFromProposal()
@@ -114,7 +117,10 @@ class OnZip321ScannedUseCase(
         try {
             val proposal =
                 when (accountDataSource.getSelectedAccount()) {
-                    is KeepKeyAccount -> error("KeepKey: ZIP-321 signing not yet implemented (Phase 2)")
+                    is KeepKeyAccount -> {
+                        error("KeepKey: ZIP-321 signing not yet implemented (Phase 2)")
+                    }
+
                     is KeystoneAccount -> {
                         val result = keystoneProposalRepository.createZip321Proposal(zip321.zip321Uri)
                         keystoneProposalRepository.createPCZTFromProposal()

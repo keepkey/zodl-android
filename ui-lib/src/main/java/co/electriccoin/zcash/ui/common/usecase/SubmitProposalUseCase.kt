@@ -73,6 +73,7 @@ class SubmitProposalUseCase(
                 is KeepKeyAccount -> {
                     navigationRouter.replace(SignKeepKeyTransactionArgs)
                 }
+
                 is KeystoneAccount -> {
                     navigationRouter.replace(SignKeystoneTransactionArgs)
                 }

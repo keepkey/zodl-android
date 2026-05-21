@@ -13,7 +13,6 @@ import kotlin.test.assertFailsWith
  *   Continuation : [0x3F | 63 payload bytes]
  */
 class KeepKeyFramingTest {
-
     // --- buildKeepKeyPackets ---
 
     @Test
@@ -22,10 +21,10 @@ class KeepKeyFramingTest {
         assertEquals(1, packets.size)
         val p = packets[0]
         assertEquals(64, p.size)
-        assertEquals(0x3F.toByte(), p[0])          // marker
-        assertEquals(0x00.toByte(), p[1])           // type hi
-        assertEquals(0x01.toByte(), p[2])           // type lo
-        assertEquals(0x00.toByte(), p[3])           // len bytes = 0
+        assertEquals(0x3F.toByte(), p[0]) // marker
+        assertEquals(0x00.toByte(), p[1]) // type hi
+        assertEquals(0x01.toByte(), p[2]) // type lo
+        assertEquals(0x00.toByte(), p[3]) // len bytes = 0
         assertEquals(0x00.toByte(), p[4])
         assertEquals(0x00.toByte(), p[5])
         assertEquals(0x00.toByte(), p[6])

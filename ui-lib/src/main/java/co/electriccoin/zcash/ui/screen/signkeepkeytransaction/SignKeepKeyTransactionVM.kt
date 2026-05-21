@@ -34,16 +34,18 @@ class SignKeepKeyTransactionVM(
                 subtitle = stringRes(R.string.keepkey_signing_subtitle),
                 isLoading = loading,
                 errorMessage = error?.let { stringRes(it) },
-                positiveButton = ButtonState(
-                    text = stringRes(R.string.sign_keepkey_transaction_positive),
-                    onClick = ::onConfirmClick,
-                    isEnabled = !loading,
-                ),
-                negativeButton = ButtonState(
-                    text = stringRes(R.string.sign_keepkey_transaction_negative),
-                    onClick = ::onCancelClick,
-                    isEnabled = !loading,
-                ),
+                positiveButton =
+                    ButtonState(
+                        text = stringRes(R.string.sign_keepkey_transaction_positive),
+                        onClick = ::onConfirmClick,
+                        isEnabled = !loading,
+                    ),
+                negativeButton =
+                    ButtonState(
+                        text = stringRes(R.string.sign_keepkey_transaction_negative),
+                        onClick = ::onCancelClick,
+                        isEnabled = !loading,
+                    ),
                 onBack = ::onBack,
             )
         }.stateIn(
@@ -60,8 +62,7 @@ class SignKeepKeyTransactionVM(
             runCatching { keepKeyProposalRepository.signAndSubmit() }
                 .onSuccess {
                     navigationRouter.replace(TransactionProgressArgs)
-                }
-                .onFailure { e ->
+                }.onFailure { e ->
                     errorMessage.update { e.message ?: "Signing failed" }
                     isLoading.update { false }
                 }
@@ -86,14 +87,16 @@ class SignKeepKeyTransactionVM(
             subtitle = stringRes(R.string.keepkey_signing_subtitle),
             isLoading = false,
             errorMessage = null,
-            positiveButton = ButtonState(
-                text = stringRes(R.string.sign_keepkey_transaction_positive),
-                onClick = ::onConfirmClick,
-            ),
-            negativeButton = ButtonState(
-                text = stringRes(R.string.sign_keepkey_transaction_negative),
-                onClick = ::onCancelClick,
-            ),
+            positiveButton =
+                ButtonState(
+                    text = stringRes(R.string.sign_keepkey_transaction_positive),
+                    onClick = ::onConfirmClick,
+                ),
+            negativeButton =
+                ButtonState(
+                    text = stringRes(R.string.sign_keepkey_transaction_negative),
+                    onClick = ::onCancelClick,
+                ),
             onBack = ::onBack,
         )
 }

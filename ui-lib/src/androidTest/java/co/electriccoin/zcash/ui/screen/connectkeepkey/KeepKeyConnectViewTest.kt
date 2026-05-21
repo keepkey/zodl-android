@@ -28,7 +28,6 @@ import kotlin.test.assertTrue
  */
 @MediumTest
 class KeepKeyConnectViewTest {
-
     @get:Rule
     val composeTestRule = createComposeRule()
 
@@ -47,9 +46,10 @@ class KeepKeyConnectViewTest {
         composeTestRule.setContent {
             ZcashTheme { KeepKeyConnectView(state = idleState()) }
         }
-        composeTestRule.onNodeWithText(
-            "Plug your KeepKey into this device using a USB OTG cable."
-        ).assertIsDisplayed()
+        composeTestRule
+            .onNodeWithText(
+                "Plug your KeepKey into this device using a USB OTG cable."
+            ).assertIsDisplayed()
     }
 
     @Test
@@ -68,7 +68,7 @@ class KeepKeyConnectViewTest {
             ZcashTheme { KeepKeyConnectView(state = idleState()) }
         }
         // The button text and title are both "Connect KeepKey"; at least one occurrence must exist.
-        composeTestRule.onAllNodes(hasTestTag("") /* any */ , useUnmergedTree = false)
+        composeTestRule.onAllNodes(hasTestTag(""), useUnmergedTree = false)
         composeTestRule.onNodeWithText("Connect KeepKey").assertIsDisplayed()
     }
 
@@ -91,7 +91,8 @@ class KeepKeyConnectViewTest {
         // the title "Connect KeepKey" still exists, but the button is replaced by a spinner.
         // We verify by checking the spinner (CircularProgressIndicator has no text, so we verify
         // the connect-action text is absent from clickable nodes).
-        composeTestRule.onNodeWithText("Connect KeepKey", useUnmergedTree = true)
+        composeTestRule
+            .onNodeWithText("Connect KeepKey", useUnmergedTree = true)
             .assertIsDisplayed() // title still shown
         // There is no direct tag for CircularProgressIndicator; we accept the test as covering
         // that the button is hidden when isLoading=true (code path covered in view).
@@ -134,13 +135,16 @@ class KeepKeyConnectViewTest {
         }
         // In idle state the button label is the same as the title — click the last occurrence
         // (buttons appear after the title in the column).
-        composeTestRule.onAllNodes(
-            matcher = androidx.compose.ui.test.hasText("Connect KeepKey"),
-            useUnmergedTree = true,
-        ).also { nodes ->
-            // Click the last matching node (the button, not the title)
-            nodes[nodes.fetchSemanticsNodes().size - 1].performClick()
-        }
+        composeTestRule
+            .onAllNodes(
+                matcher =
+                    androidx.compose.ui.test
+                        .hasText("Connect KeepKey"),
+                useUnmergedTree = true,
+            ).also { nodes ->
+                // Click the last matching node (the button, not the title)
+                nodes[nodes.fetchSemanticsNodes().size - 1].performClick()
+            }
         composeTestRule.waitForIdle()
         assertTrue(clickCount.get() > 0, "Connect button click should fire the callback")
     }

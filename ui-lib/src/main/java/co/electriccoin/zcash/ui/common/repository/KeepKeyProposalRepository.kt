@@ -118,65 +118,61 @@ class KeepKeyProposalRepositoryImpl(
 
     @Suppress("UseCheckOrError", "ThrowingExceptionsWithoutMessageOrCause", "TooGenericExceptionCaught")
     override suspend fun signAndSubmit(): SubmitResult =
-        scope.async {
-            val proposal =
-                transactionProposal.value
-                    ?: throw IllegalStateException("No transaction proposal")
+        scope
+            .async {
+                val proposal =
+                    transactionProposal.value
+                        ?: throw IllegalStateException("No transaction proposal")
 
-            val keepKeyAccount = accountDataSource.getSelectedAccount() as? KeepKeyAccount
-                ?: throw IllegalStateException("Selected account is not a KeepKey account")
+                val keepKeyAccount =
+                    accountDataSource.getSelectedAccount() as? KeepKeyAccount
+                        ?: throw IllegalStateException("Selected account is not a KeepKey account")
 
-            submitState.update { SubmitProposalState.Submitting }
+                submitState.update { SubmitProposalState.Submitting }
 
-            try {
-                // 1. Create PCZT from the proposal and add ZK proofs.
-                val rawPczt =
-                    proposalDataSource.createPcztFromProposal(
-                        account = keepKeyAccount,
-                        proposal = proposal.proposal,
-                    )
-                val pcztWithProofs = proposalDataSource.addProofsToPczt(rawPczt.clonePczt())
+                try {
+                    // 1. Create PCZT from the proposal and add ZK proofs.
+                    val rawPczt =
+                        proposalDataSource.createPcztFromProposal(
+                            account = keepKeyAccount,
+                            proposal = proposal.proposal,
+                        )
+                    val pcztWithProofs = proposalDataSource.addProofsToPczt(rawPczt.clonePczt())
 
-                // 2. Redact the PCZT so only signing-relevant fields are sent to the device.
-                val redactedPczt = proposalDataSource.redactPcztForSigner(pcztWithProofs.clonePczt())
+                    // 2. Redact the PCZT so only signing-relevant fields are sent to the device.
+                    val redactedPczt = proposalDataSource.redactPcztForSigner(pcztWithProofs.clonePczt())
 
-                // 3. Drive the KeepKey signing exchange over USB, collect RedPallas signatures.
-                // TODO(sdk): pass nActions from redactedPczt once SDK exposes it; 0 means no Orchard actions for now.
-                val signatures = signingProtocol.sign(
-                    accountIndex = keepKeyAccount.sdkAccount.accountUuid.value.hashCode() and 0x7FFFFFFF,
-                    pcztBytes = redactedPczt.toByteArray(),
-                    nActions = 0, // TODO(sdk): extract from redactedPczt once SDK exposes it
-                )
+                    // 3. Drive the KeepKey signing exchange over USB, collect RedPallas signatures.
+                    // TODO [#2]: pass nActions from redactedPczt once the ZCash SDK exposes it.
+                    val signatures =
+                        signingProtocol.sign(
+                            accountIndex =
+                                keepKeyAccount.sdkAccount.accountUuid.value
+                                    .hashCode() and 0x7FFFFFFF,
+                            pcztBytes = redactedPczt.toByteArray(),
+                            nActions = 0, // TODO [#2]: extract nActions from redactedPczt
+                        )
 
-                // 4. TODO(sdk): Insert the RedPallas signatures into the PCZT.
-                //
-                //    The ZCash Android SDK does not yet expose a method to embed spend auth
-                //    signatures into a Pczt.  The needed method signature is:
-                //
-                //      Synchronizer.addSpendAuthSigsToPczt(pczt: Pczt, sigs: List<ByteArray>): Pczt
-                //
-                //    Each entry in `sigs` is a 64-byte RedPallas signature for the corresponding
-                //    Orchard action's spend_auth_sig field.  Once this SDK method exists, replace
-                //    the UnsupportedOperationException below with the real call.
-                val pcztWithSignatures = insertSignaturesIntoPczt(redactedPczt, signatures)
+                    // 4. TODO [#2]: Insert the RedPallas signatures into the PCZT.
+                    //    Blocked on Synchronizer.addSpendAuthSigsToPczt() in the ZCash Android SDK.
+                    val pcztWithSignatures = insertSignaturesIntoPczt(redactedPczt, signatures)
 
-                // 5. Finalize and broadcast.
-                val result =
-                    proposalDataSource.submitTransaction(
-                        pcztWithProofs = pcztWithProofs,
-                        pcztWithSignatures = pcztWithSignatures,
-                    )
-                submitState.update { SubmitProposalState.Result(result) }
-                result
-            } catch (e: Exception) {
-                Twig.error(e) { "KeepKey signAndSubmit failed" }
-                submitState.update { SubmitProposalState.Result(SubmitResult.Error(e)) }
-                throw e
-            }
-        }.await()
+                    // 5. Finalize and broadcast.
+                    val result =
+                        proposalDataSource.submitTransaction(
+                            pcztWithProofs = pcztWithProofs,
+                            pcztWithSignatures = pcztWithSignatures,
+                        )
+                    submitState.update { SubmitProposalState.Result(result) }
+                    result
+                } catch (e: Exception) {
+                    Twig.error(e) { "KeepKey signAndSubmit failed" }
+                    submitState.update { SubmitProposalState.Result(SubmitResult.Error(e)) }
+                    throw e
+                }
+            }.await()
 
-    // TODO(sdk): Replace this stub with a real SDK call once the method is available.
-    // See the signAndSubmit() comment above for the required SDK method signature.
+    // TODO [#2]: Replace with Synchronizer.addSpendAuthSigsToPczt() once available in the ZCash SDK.
     @Suppress("UNUSED_PARAMETER")
     private fun insertSignaturesIntoPczt(pczt: Pczt, signatures: List<ByteArray>): Pczt =
         throw UnsupportedOperationException(

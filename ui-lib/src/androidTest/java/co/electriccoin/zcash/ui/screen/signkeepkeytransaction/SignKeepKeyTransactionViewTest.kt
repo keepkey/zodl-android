@@ -22,7 +22,6 @@ import kotlin.test.assertEquals
  */
 @MediumTest
 class SignKeepKeyTransactionViewTest {
-
     @get:Rule
     val composeTestRule = createComposeRule()
 
@@ -41,9 +40,10 @@ class SignKeepKeyTransactionViewTest {
         composeTestRule.setContent {
             ZcashTheme { SignKeepKeyTransactionView(state = idleState()) }
         }
-        composeTestRule.onNodeWithText(
-            "Review and approve the transaction on your KeepKey device."
-        ).assertIsDisplayed()
+        composeTestRule
+            .onNodeWithText(
+                "Review and approve the transaction on your KeepKey device."
+            ).assertIsDisplayed()
     }
 
     @Test
@@ -87,9 +87,10 @@ class SignKeepKeyTransactionViewTest {
             ZcashTheme { SignKeepKeyTransactionView(state = loadingState()) }
         }
         composeTestRule.onNodeWithText("Confirm on KeepKey").assertIsDisplayed()
-        composeTestRule.onNodeWithText(
-            "Review and approve the transaction on your KeepKey device."
-        ).assertIsDisplayed()
+        composeTestRule
+            .onNodeWithText(
+                "Review and approve the transaction on your KeepKey device."
+            ).assertIsDisplayed()
     }
 
     // --- error state ---
@@ -182,25 +183,28 @@ class SignKeepKeyTransactionViewTest {
         subtitle = stringRes("Review and approve the transaction on your KeepKey device."),
         isLoading = false,
         errorMessage = errorMessage?.let { stringRes(it) },
-        positiveButton = ButtonState(
-            text = stringRes("Sign Transaction"),
-            onClick = onSignClick,
-            isEnabled = signEnabled,
-        ),
-        negativeButton = ButtonState(
-            text = stringRes("Cancel"),
-            onClick = onCancelClick,
-        ),
+        positiveButton =
+            ButtonState(
+                text = stringRes("Sign Transaction"),
+                onClick = onSignClick,
+                isEnabled = signEnabled,
+            ),
+        negativeButton =
+            ButtonState(
+                text = stringRes("Cancel"),
+                onClick = onCancelClick,
+            ),
         onBack = {},
     )
 
-    private fun loadingState() = SignKeepKeyTransactionState(
-        title = stringRes("Confirm on KeepKey"),
-        subtitle = stringRes("Review and approve the transaction on your KeepKey device."),
-        isLoading = true,
-        errorMessage = null,
-        positiveButton = ButtonState(text = stringRes("Sign Transaction"), onClick = {}),
-        negativeButton = ButtonState(text = stringRes("Cancel"), onClick = {}),
-        onBack = {},
-    )
+    private fun loadingState() =
+        SignKeepKeyTransactionState(
+            title = stringRes("Confirm on KeepKey"),
+            subtitle = stringRes("Review and approve the transaction on your KeepKey device."),
+            isLoading = true,
+            errorMessage = null,
+            positiveButton = ButtonState(text = stringRes("Sign Transaction"), onClick = {}),
+            negativeButton = ButtonState(text = stringRes("Cancel"), onClick = {}),
+            onBack = {},
+        )
 }

@@ -77,6 +77,7 @@ private fun Content(state: SelectKeepKeyAccountState) {
                         modifier = Modifier.fillMaxWidth().padding(horizontal = 4.dp),
                     )
                 }
+
                 is ZashiExpandedCheckboxListItemState -> {
                     ZashiExpandedCheckboxListItem(
                         state = item,
@@ -137,9 +138,10 @@ private fun Preview() =
                 SelectKeepKeyAccountState(
                     onBack = {},
                     title = stringRes("Confirm Account to Access"),
-                    subtitle = stringRes(
-                        "Review the KeepKey account before connecting."
-                    ),
+                    subtitle =
+                        stringRes(
+                            "Review the KeepKey account before connecting."
+                        ),
                     items =
                         listOf(
                             ZashiExpandedCheckboxListItemState(

@@ -37,7 +37,10 @@ class ShieldFundsUseCase(
                 messageAvailabilityDataSource.onShieldingInitiated()
 
                 when (accountDataSource.getSelectedAccount()) {
-                    is KeepKeyAccount -> error("KeepKey: shield signing not yet implemented (Phase 2)")
+                    is KeepKeyAccount -> {
+                        error("KeepKey: shield signing not yet implemented (Phase 2)")
+                    }
+
                     is KeystoneAccount -> {
                         createKeystoneShieldProposal()
                     }

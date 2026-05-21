@@ -281,6 +281,7 @@ class AccountDataSourceImpl(
                 when (sdkAccount.keySource?.lowercase()) {
                     KEYSTONE_KEYSOURCE,
                     KEEPKEY_KEYSOURCE -> sdkAccount.accountUuid == uuid || allAccounts.size == 1
+
                     else -> uuid == null || sdkAccount.accountUuid == uuid || allAccounts.size == 1
                 }
             }

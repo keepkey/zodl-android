@@ -18,12 +18,13 @@ class ImportKeepKeyAccountUseCase(
         seedFingerprint: ByteArray,
         birthday: BlockHeight?,
     ) {
-        val account = accountDataSource.importKeepKeyAccount(
-            ufvk = ufvk,
-            seedFingerprint = seedFingerprint,
-            index = ORCHARD_ACCOUNT_INDEX.toLong(),
-            birthday = birthday,
-        )
+        val account =
+            accountDataSource.importKeepKeyAccount(
+                ufvk = ufvk,
+                seedFingerprint = seedFingerprint,
+                index = ORCHARD_ACCOUNT_INDEX.toLong(),
+                birthday = birthday,
+            )
         accountDataSource.selectAccount(account)
 
         if (birthday != null) {

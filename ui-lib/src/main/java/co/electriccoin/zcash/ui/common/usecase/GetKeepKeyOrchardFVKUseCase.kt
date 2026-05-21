@@ -25,18 +25,22 @@ data class KeepKeyFvkData(
 class GetKeepKeyOrchardFVKUseCase(
     private val transportProvider: KeepKeyTransportProvider,
 ) {
+    @Suppress("MagicNumber")
     suspend operator fun invoke(): KeepKeyFvkData {
         val granted = transportProvider.requestPermission()
         if (!granted) throw KeepKeyTransportException("USB permission denied")
         transportProvider.connect()
 
-        val request = ZcashGetOrchardFVK.newBuilder()
-            .setAccount(ORCHARD_ACCOUNT_INDEX)
-            .build()
-        val (responseType, responseBytes) = transportProvider.sendMessage(
-            MSG_ZCASH_GET_ORCHARD_FVK,
-            request.toByteArray(),
-        )
+        val request =
+            ZcashGetOrchardFVK
+                .newBuilder()
+                .setAccount(ORCHARD_ACCOUNT_INDEX)
+                .build()
+        val (responseType, responseBytes) =
+            transportProvider.sendMessage(
+                MSG_ZCASH_GET_ORCHARD_FVK,
+                request.toByteArray(),
+            )
         check(responseType == MSG_ZCASH_ORCHARD_FVK) {
             "Unexpected KeepKey response type: $responseType (expected $MSG_ZCASH_ORCHARD_FVK)"
         }
@@ -47,12 +51,13 @@ class GetKeepKeyOrchardFVKUseCase(
 
         val ufvk = OrchardUfvkEncoder.encode(ak, nk, rivk, VersionInfo.NETWORK)
         val seedFingerprint = Blake2b.hash(ak + nk + rivk, personal = SEED_FP_PERSONAL).copyOf(32)
-        val unifiedAddress = withContext(Dispatchers.Default) {
-            DerivationTool.getInstance().deriveUnifiedAddress(
-                viewingKey = ufvk,
-                network = VersionInfo.NETWORK,
-            )
-        }
+        val unifiedAddress =
+            withContext(Dispatchers.Default) {
+                DerivationTool.getInstance().deriveUnifiedAddress(
+                    viewingKey = ufvk,
+                    network = VersionInfo.NETWORK,
+                )
+            }
 
         return KeepKeyFvkData(ufvk, seedFingerprint, unifiedAddress)
     }

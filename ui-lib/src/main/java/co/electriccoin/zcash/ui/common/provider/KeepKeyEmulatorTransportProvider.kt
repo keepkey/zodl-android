@@ -12,6 +12,7 @@ import java.net.URL
 const val EMULATOR_BRIDGE_DEFAULT_URL = "http://10.0.2.2:5000"
 
 private const val HTTP_TIMEOUT_MS = 30_000
+private const val HTTP_OK = 200
 private const val MSG_TYPE_GET_FEATURES = 55
 private const val MSG_TYPE_LOAD_DEVICE = 13
 private const val MSG_TYPE_DEBUG_LINK_DECISION = 100
@@ -30,10 +31,10 @@ private const val MSG_TYPE_DEBUG_LINK_DECISION = 100
  *
  * Do NOT register this in ProviderModule — it is for test and development use only.
  */
+@Suppress("TooManyFunctions")
 class KeepKeyEmulatorTransportProvider(
     private val baseUrl: String = EMULATOR_BRIDGE_DEFAULT_URL,
 ) : KeepKeyTransportProvider {
-
     @Volatile private var connected = false
 
     override suspend fun requestPermission(): Boolean = true
@@ -78,7 +79,7 @@ class KeepKeyEmulatorTransportProvider(
             conn.setRequestProperty("Content-Type", "application/json")
             conn.doOutput = true
             conn.outputStream.use { it.write("""{"data":"$hexData"}""".toByteArray(Charsets.UTF_8)) }
-            check(conn.responseCode == 200) { "Bridge POST $path returned ${conn.responseCode}" }
+            check(conn.responseCode == HTTP_OK) { "Bridge POST $path returned ${conn.responseCode}" }
         } finally {
             conn.disconnect()
         }
@@ -103,36 +104,60 @@ class KeepKeyEmulatorTransportProvider(
     // from the Features message returned by GetFeatures.
     @Suppress("MagicNumber")
     private fun parseFeatures(bytes: ByteArray): KeepKeyDevice {
-        var major = 0; var minor = 0; var patch = 0; var serial: String? = null
+        var major = 0
+        var minor = 0
+        var patch = 0
+        var serial: String? = null
         var i = 0
         while (i < bytes.size) {
-            val (tagWord, tLen) = readVarint(bytes, i); i += tLen
+            val (tagWord, tLen) = readVarint(bytes, i)
+            i += tLen
             val tag = (tagWord shr 3).toInt()
             when ((tagWord and 7).toInt()) {
                 0 -> {
-                    val (v, n) = readVarint(bytes, i); i += n
-                    when (tag) { 2 -> major = v.toInt(); 3 -> minor = v.toInt(); 4 -> patch = v.toInt() }
+                    val (v, n) = readVarint(bytes, i)
+                    i += n
+                    when (tag) {
+                        2 -> major = v.toInt()
+                        3 -> minor = v.toInt()
+                        4 -> patch = v.toInt()
+                    }
                 }
+
                 2 -> {
-                    val (len, n) = readVarint(bytes, i); i += n
+                    val (len, n) = readVarint(bytes, i)
+                    i += n
                     if (tag == 1 && i + len.toInt() <= bytes.size) {
                         serial = String(bytes, i, len.toInt(), Charsets.UTF_8)
                     }
                     i += len.toInt()
                 }
-                1 -> i += 8
-                5 -> i += 4
-                else -> break
+
+                1 -> {
+                    i += 8
+                }
+
+                5 -> {
+                    i += 4
+                }
+
+                else -> {
+                    break
+                }
             }
         }
         return KeepKeyDevice(serial, major, minor, patch)
     }
 
+    @Suppress("MagicNumber")
     private fun readVarint(bytes: ByteArray, start: Int): Pair<Long, Int> {
-        var r = 0L; var shift = 0; var i = start
+        var r = 0L
+        var shift = 0
+        var i = start
         while (i < bytes.size) {
             val b = bytes[i++].toInt() and 0xFF
-            r = r or ((b and 0x7F).toLong() shl shift); shift += 7
+            r = r or ((b and 0x7F).toLong() shl shift)
+            shift += 7
             if (b and 0x80 == 0) break
         }
         return r to (i - start)
@@ -140,6 +165,8 @@ class KeepKeyEmulatorTransportProvider(
 
     companion object {
         private fun ByteArray.toHex() = joinToString("") { "%02x".format(it) }
+
+        @Suppress("MagicNumber")
         private fun String.fromHex(): ByteArray {
             check(length % 2 == 0) { "Odd-length hex string" }
             return ByteArray(length / 2) { i ->
@@ -172,13 +199,15 @@ class KeepKeyEmulatorDebugLink(
         pin: String = "",
         label: String = "emulator",
     ) {
-        val req = LoadDevice.newBuilder()
-            .setMnemonic(mnemonic)
-            .setPin(pin)
-            .setPassphraseProtection(false)
-            .setLabel(label)
-            .setSkipChecksum(true)
-            .build()
+        val req =
+            LoadDevice
+                .newBuilder()
+                .setMnemonic(mnemonic)
+                .setPin(pin)
+                .setPassphraseProtection(false)
+                .setLabel(label)
+                .setSkipChecksum(true)
+                .build()
 
         // Send LoadDevice on the main wire — device may show a "Wipe?" confirmation.
         for (packet in buildKeepKeyPackets(MSG_TYPE_LOAD_DEVICE, req.toByteArray())) {
@@ -214,7 +243,7 @@ class KeepKeyEmulatorDebugLink(
             conn.setRequestProperty("Content-Type", "application/json")
             conn.doOutput = true
             conn.outputStream.use { it.write("""{"data":"$hexData"}""".toByteArray(Charsets.UTF_8)) }
-            check(conn.responseCode == 200) { "Bridge POST $path returned ${conn.responseCode}" }
+            check(conn.responseCode == HTTP_OK) { "Bridge POST $path returned ${conn.responseCode}" }
         } finally {
             conn.disconnect()
         }
@@ -235,6 +264,7 @@ class KeepKeyEmulatorDebugLink(
 
     companion object {
         private const val HTTP_TIMEOUT_MS = 30_000
+
         private fun ByteArray.toHex() = joinToString("") { "%02x".format(it) }
     }
 }

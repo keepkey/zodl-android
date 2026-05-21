@@ -149,7 +149,10 @@ class RequestSwapQuoteUseCase(
             )
 
         when (accountDataSource.getSelectedAccount()) {
-            is KeepKeyAccount -> error("KeepKey: swap signing not yet implemented (Phase 2)")
+            is KeepKeyAccount -> {
+                error("KeepKey: swap signing not yet implemented (Phase 2)")
+            }
+
             is KeystoneAccount -> {
                 when (quote.mode) {
                     EXACT_INPUT -> keystoneProposalRepository.createExactInputSwapProposal(send, quote)

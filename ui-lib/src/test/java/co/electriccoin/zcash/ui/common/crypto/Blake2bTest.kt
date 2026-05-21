@@ -10,7 +10,6 @@ import kotlin.test.assertFailsWith
  * RFC 7693 Appendix E test vectors and property checks.
  */
 class Blake2bTest {
-
     // --- RFC 7693 Appendix E: self-test vectors ---
     // Input is the sequence of bytes 0..N-1; output is the first 4 bytes of BLAKE2b-512.
 

@@ -5,12 +5,6 @@ import co.electriccoin.zcash.ui.common.viewmodel.AuthenticationViewModel
 import co.electriccoin.zcash.ui.common.viewmodel.OldHomeViewModel
 import co.electriccoin.zcash.ui.common.viewmodel.WalletViewModel
 import co.electriccoin.zcash.ui.screen.ScreenTimeoutVM
-import co.electriccoin.zcash.ui.screen.connectkeepkey.connect.KeepKeyConnectVM
-import co.electriccoin.zcash.ui.screen.connectkeepkey.date.KeepKeyDateVM
-import co.electriccoin.zcash.ui.screen.connectkeepkey.estimation.KeepKeyEstimationVM
-import co.electriccoin.zcash.ui.screen.connectkeepkey.height.KeepKeyHeightVM
-import co.electriccoin.zcash.ui.screen.connectkeepkey.neworactive.KeepKeyNewOrActiveVM
-import co.electriccoin.zcash.ui.screen.selectkeepkeyaccount.viewmodel.SelectKeepKeyAccountViewModel
 import co.electriccoin.zcash.ui.screen.accountlist.AccountListVM
 import co.electriccoin.zcash.ui.screen.addressbook.AddressBookVM
 import co.electriccoin.zcash.ui.screen.addressbook.SelectABRecipientVM
@@ -20,6 +14,11 @@ import co.electriccoin.zcash.ui.screen.advancedsettings.debug.db.DebugDBVM
 import co.electriccoin.zcash.ui.screen.balances.BalanceWidgetVM
 import co.electriccoin.zcash.ui.screen.balances.spendable.SpendableBalanceVM
 import co.electriccoin.zcash.ui.screen.chooseserver.ChooseServerVM
+import co.electriccoin.zcash.ui.screen.connectkeepkey.connect.KeepKeyConnectVM
+import co.electriccoin.zcash.ui.screen.connectkeepkey.date.KeepKeyDateVM
+import co.electriccoin.zcash.ui.screen.connectkeepkey.estimation.KeepKeyEstimationVM
+import co.electriccoin.zcash.ui.screen.connectkeepkey.height.KeepKeyHeightVM
+import co.electriccoin.zcash.ui.screen.connectkeepkey.neworactive.KeepKeyNewOrActiveVM
 import co.electriccoin.zcash.ui.screen.connectkeystone.connect.KeystoneConnectVM
 import co.electriccoin.zcash.ui.screen.connectkeystone.date.KeystoneDateVM
 import co.electriccoin.zcash.ui.screen.connectkeystone.estimation.KeystoneEstimationVM
@@ -68,6 +67,7 @@ import co.electriccoin.zcash.ui.screen.scan.ScanZashiAddressVM
 import co.electriccoin.zcash.ui.screen.scan.thirdparty.ThirdPartyScanViewModel
 import co.electriccoin.zcash.ui.screen.scankeystone.viewmodel.ScanKeystonePCZTViewModel
 import co.electriccoin.zcash.ui.screen.scankeystone.viewmodel.ScanKeystoneSignInRequestViewModel
+import co.electriccoin.zcash.ui.screen.selectkeepkeyaccount.viewmodel.SelectKeepKeyAccountViewModel
 import co.electriccoin.zcash.ui.screen.selectkeystoneaccount.viewmodel.SelectKeystoneAccountViewModel
 import co.electriccoin.zcash.ui.screen.send.SendViewModel
 import co.electriccoin.zcash.ui.screen.signkeepkeytransaction.SignKeepKeyTransactionVM

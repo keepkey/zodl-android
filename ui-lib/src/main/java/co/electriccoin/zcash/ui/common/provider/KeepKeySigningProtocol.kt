@@ -17,6 +17,13 @@ internal const val MSG_FAILURE = 3
 // Hardened BIP-32 / ZIP-32 index offset
 private const val HARDENED = 0x80000000.toInt()
 
+// ZIP-32 Orchard derivation path: [32', 133', account']
+private const val ZIP32_PURPOSE = 32
+private const val ZCASH_COIN_TYPE = 133
+
+// Orchard alpha and sighash are each 32 bytes (one Pallas scalar / one BLS12-381 digest)
+private const val ORCHARD_FIELD_BYTES = 32
+
 /**
  * Per-action signing data for an Orchard action.
  *
@@ -36,8 +43,8 @@ data class OrchardActionData(
     val isSpend: Boolean = true,
 ) {
     init {
-        require(alpha.size == 32) { "alpha must be 32 bytes, got ${alpha.size}" }
-        require(sighash.size == 32) { "sighash must be 32 bytes, got ${sighash.size}" }
+        require(alpha.size == ORCHARD_FIELD_BYTES) { "alpha must be 32 bytes, got ${alpha.size}" }
+        require(sighash.size == ORCHARD_FIELD_BYTES) { "sighash must be 32 bytes, got ${sighash.size}" }
     }
 
     override fun equals(other: Any?): Boolean {
@@ -73,8 +80,9 @@ data class OrchardActionData(
  * When [actions] is empty, [nActions] controls the loop count (used by production code while
  * the SDK does not yet expose per-action data from a redacted PCZT).
  */
-internal class KeepKeySigningProtocol(private val transport: KeepKeyTransportProvider) {
-
+internal class KeepKeySigningProtocol(
+    private val transport: KeepKeyTransportProvider
+) {
     suspend fun sign(
         accountIndex: Int,
         pcztBytes: ByteArray,
@@ -87,9 +95,10 @@ internal class KeepKeySigningProtocol(private val transport: KeepKeyTransportPro
             val actionCount = if (actions.isNotEmpty()) actions.size else nActions
 
             val initRequest =
-                ZcashSignPCZT.newBuilder()
-                    .addAddressN(HARDENED or 32)
-                    .addAddressN(HARDENED or 133)
+                ZcashSignPCZT
+                    .newBuilder()
+                    .addAddressN(HARDENED or ZIP32_PURPOSE)
+                    .addAddressN(HARDENED or ZCASH_COIN_TYPE)
                     .addAddressN(HARDENED or accountIndex)
                     .setAccount(accountIndex)
                     .setPcztData(ByteString.copyFrom(pcztBytes))
@@ -128,13 +137,18 @@ internal class KeepKeySigningProtocol(private val transport: KeepKeyTransportPro
                 }
 
                 when (responseType) {
-                    MSG_ZCASH_PCZT_ACTION_ACK ->
+                    MSG_ZCASH_PCZT_ACTION_ACK -> {
                         nextIndex = ZcashPCZTActionAck.parseFrom(responseBytes).nextIndex
+                    }
+
                     MSG_ZCASH_SIGNED_PCZT -> {
                         val signed = ZcashSignedPCZT.parseFrom(responseBytes)
                         signatures.addAll(signed.signaturesList.map { it.toByteArray() })
                     }
-                    else -> error("Unexpected response type $responseType after ZcashPCZTAction[$i]")
+
+                    else -> {
+                        error("Unexpected response type $responseType after ZcashPCZTAction[$i]")
+                    }
                 }
             }
 

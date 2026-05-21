@@ -12,12 +12,12 @@ import android.hardware.usb.UsbEndpoint
 import android.hardware.usb.UsbInterface
 import android.hardware.usb.UsbManager
 import androidx.core.content.ContextCompat
-import kotlin.coroutines.resume
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
+import kotlin.coroutines.resume
 
 private const val KEEPKEY_VID = 0x2B24
 private const val KEEPKEY_PID = 0x0001
@@ -33,15 +33,25 @@ data class KeepKeyDevice(
 
 interface KeepKeyTransportProvider {
     suspend fun requestPermission(): Boolean
+
     suspend fun connect(): KeepKeyDevice
+
     suspend fun disconnect()
+
     suspend fun sendMessage(typeId: Int, payload: ByteArray): Pair<Int, ByteArray>
+
     fun isConnected(): Boolean
 }
 
-class KeepKeyTransportException(message: String, cause: Throwable? = null) : Exception(message, cause)
+class KeepKeyTransportException(
+    message: String,
+    cause: Throwable? = null
+) : Exception(message, cause)
 
-class KeepKeyTransportProviderImpl(private val context: Context) : KeepKeyTransportProvider {
+@Suppress("TooManyFunctions")
+class KeepKeyTransportProviderImpl(
+    private val context: Context
+) : KeepKeyTransportProvider {
     private val mutex = Mutex()
     private var connection: UsbDeviceConnection? = null
     private var iface: UsbInterface? = null
@@ -55,14 +65,15 @@ class KeepKeyTransportProviderImpl(private val context: Context) : KeepKeyTransp
             if (usbManager.hasPermission(device)) return@withContext true
 
             suspendCancellableCoroutine { cont ->
-                val receiver = object : BroadcastReceiver() {
-                    override fun onReceive(ctx: Context, intent: Intent) {
-                        if (ACTION_USB_PERMISSION != intent.action) return
-                        runCatching { context.unregisterReceiver(this) }
-                        val granted = intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED, false)
-                        if (cont.isActive) cont.resume(granted)
+                val receiver =
+                    object : BroadcastReceiver() {
+                        override fun onReceive(ctx: Context, intent: Intent) {
+                            if (ACTION_USB_PERMISSION != intent.action) return
+                            runCatching { context.unregisterReceiver(this) }
+                            val granted = intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED, false)
+                            if (cont.isActive) cont.resume(granted)
+                        }
                     }
-                }
                 ContextCompat.registerReceiver(
                     context,
                     receiver,
@@ -70,12 +81,13 @@ class KeepKeyTransportProviderImpl(private val context: Context) : KeepKeyTransp
                     ContextCompat.RECEIVER_NOT_EXPORTED,
                 )
                 cont.invokeOnCancellation { runCatching { context.unregisterReceiver(receiver) } }
-                val pendingIntent = PendingIntent.getBroadcast(
-                    context,
-                    0,
-                    Intent(ACTION_USB_PERMISSION),
-                    PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
-                )
+                val pendingIntent =
+                    PendingIntent.getBroadcast(
+                        context,
+                        0,
+                        Intent(ACTION_USB_PERMISSION),
+                        PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
+                    )
                 usbManager.requestPermission(device, pendingIntent)
             }
         }
@@ -84,8 +96,9 @@ class KeepKeyTransportProviderImpl(private val context: Context) : KeepKeyTransp
         withContext(Dispatchers.IO) {
             mutex.withLock {
                 val usbManager = context.getSystemService(Context.USB_SERVICE) as UsbManager
-                val device = findKeepKey(usbManager)
-                    ?: throw KeepKeyTransportException("No KeepKey device found")
+                val device =
+                    findKeepKey(usbManager)
+                        ?: throw KeepKeyTransportException("No KeepKey device found")
 
                 if (!usbManager.hasPermission(device)) {
                     throw KeepKeyTransportException(
@@ -93,14 +106,17 @@ class KeepKeyTransportProviderImpl(private val context: Context) : KeepKeyTransp
                     )
                 }
 
-                val selectedIface = findHidInterface(device)
-                    ?: throw KeepKeyTransportException("KeepKey HID interface not found")
+                val selectedIface =
+                    findHidInterface(device)
+                        ?: throw KeepKeyTransportException("KeepKey HID interface not found")
 
-                val (inEp, outEp) = findEndpoints(selectedIface)
-                    ?: throw KeepKeyTransportException("KeepKey interrupt endpoints not found")
+                val (inEp, outEp) =
+                    findEndpoints(selectedIface)
+                        ?: throw KeepKeyTransportException("KeepKey interrupt endpoints not found")
 
-                val conn = usbManager.openDevice(device)
-                    ?: throw KeepKeyTransportException("Failed to open USB device connection")
+                val conn =
+                    usbManager.openDevice(device)
+                        ?: throw KeepKeyTransportException("Failed to open USB device connection")
 
                 if (!conn.claimInterface(selectedIface, true)) {
                     conn.close()
@@ -152,7 +168,9 @@ class KeepKeyTransportProviderImpl(private val context: Context) : KeepKeyTransp
         val packets = buildPackets(typeId, payload)
         for (packet in packets) {
             val transferred = conn.bulkTransfer(ep, packet, packet.size, USB_TIMEOUT_MS)
-            if (transferred < 0) throw KeepKeyTransportException("USB write failed (bulkTransfer returned $transferred)")
+            if (transferred < 0) {
+                throw KeepKeyTransportException("USB write failed (bulkTransfer returned $transferred)")
+            }
         }
     }
 
@@ -209,6 +227,7 @@ class KeepKeyTransportProviderImpl(private val context: Context) : KeepKeyTransp
                         4 -> patch = v.first.toInt()
                     }
                 }
+
                 2 -> { // length-delimited
                     val len = readVarint(bytes, i)
                     i += len.second
@@ -218,14 +237,26 @@ class KeepKeyTransportProviderImpl(private val context: Context) : KeepKeyTransp
                         serial = String(bytes, start, len.first.toInt(), Charsets.UTF_8)
                     }
                 }
-                1 -> i += 8   // 64-bit (skip)
-                5 -> i += 4   // 32-bit (skip)
-                else -> break
+
+                1 -> {
+                    i += 8
+                }
+
+                // 64-bit (skip)
+                5 -> {
+                    i += 4
+                }
+
+                // 32-bit (skip)
+                else -> {
+                    break
+                }
             }
         }
         return KeepKeyDevice(serial, major, minor, patch)
     }
 
+    @Suppress("MagicNumber")
     private fun readVarint(bytes: ByteArray, start: Int): Pair<Long, Int> {
         var result = 0L
         var shift = 0
@@ -255,8 +286,11 @@ class KeepKeyTransportProviderImpl(private val context: Context) : KeepKeyTransp
         for (i in 0 until iface.endpointCount) {
             val ep = iface.getEndpoint(i)
             if (ep.type == UsbConstants.USB_ENDPOINT_XFER_INT) {
-                if (ep.direction == UsbConstants.USB_DIR_IN) inEp = ep
-                else outEp = ep
+                if (ep.direction == UsbConstants.USB_DIR_IN) {
+                    inEp = ep
+                } else {
+                    outEp = ep
+                }
             }
         }
         return if (inEp != null && outEp != null) Pair(inEp, outEp) else null

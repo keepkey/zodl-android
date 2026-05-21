@@ -5,8 +5,8 @@ import androidx.lifecycle.ViewModel
 import cash.z.ecc.android.sdk.model.BlockHeight
 import co.electriccoin.zcash.ui.NavigationRouter
 import co.electriccoin.zcash.ui.R
-import co.electriccoin.zcash.ui.common.model.LceState
 import co.electriccoin.zcash.ui.common.model.Lce
+import co.electriccoin.zcash.ui.common.model.LceState
 import co.electriccoin.zcash.ui.common.model.guardLoading
 import co.electriccoin.zcash.ui.common.model.mutableLce
 import co.electriccoin.zcash.ui.common.model.stateIn
@@ -73,5 +73,6 @@ class SelectKeepKeyAccountViewModel(
 
     private fun onBack() = importLce.guardLoading { navigationRouter.back() }
 
+    @Suppress("MagicNumber")
     private fun String.fromHex() = chunked(2).map { it.toInt(16).toByte() }.toByteArray()
 }
