@@ -5,6 +5,7 @@ import co.electriccoin.zcash.ui.common.datasource.AccountDataSource
 import co.electriccoin.zcash.ui.common.datasource.InsufficientFundsException
 import co.electriccoin.zcash.ui.common.datasource.TexUnsupportedOnKSException
 import co.electriccoin.zcash.ui.common.datasource.TransactionProposalNotCreatedException
+import co.electriccoin.zcash.ui.common.model.KeepKeyAccount
 import co.electriccoin.zcash.ui.common.model.KeystoneAccount
 import co.electriccoin.zcash.ui.common.model.ZashiAccount
 import co.electriccoin.zcash.ui.common.repository.KeystoneProposalRepository
@@ -64,6 +65,10 @@ class OnZip321ScannedUseCase(
         try {
             val proposal =
                 when (accountDataSource.getSelectedAccount()) {
+                    is KeepKeyAccount -> {
+                        error("KeepKey: ZIP-321 signing not yet implemented (Phase 2)")
+                    }
+
                     is KeystoneAccount -> {
                         val result = keystoneProposalRepository.createZip321Proposal(zip321.zip321Uri)
                         keystoneProposalRepository.createPCZTFromProposal()
@@ -112,6 +117,10 @@ class OnZip321ScannedUseCase(
         try {
             val proposal =
                 when (accountDataSource.getSelectedAccount()) {
+                    is KeepKeyAccount -> {
+                        error("KeepKey: ZIP-321 signing not yet implemented (Phase 2)")
+                    }
+
                     is KeystoneAccount -> {
                         val result = keystoneProposalRepository.createZip321Proposal(zip321.zip321Uri)
                         keystoneProposalRepository.createPCZTFromProposal()

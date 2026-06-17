@@ -5,17 +5,20 @@ import co.electriccoin.zcash.ui.R
 import co.electriccoin.zcash.ui.common.datasource.AccountDataSource
 import co.electriccoin.zcash.ui.common.datasource.SwapTransactionProposal
 import co.electriccoin.zcash.ui.common.datasource.TransactionProposal
+import co.electriccoin.zcash.ui.common.model.KeepKeyAccount
 import co.electriccoin.zcash.ui.common.model.KeystoneAccount
 import co.electriccoin.zcash.ui.common.model.ZashiAccount
 import co.electriccoin.zcash.ui.common.repository.BiometricRepository
 import co.electriccoin.zcash.ui.common.repository.BiometricRequest
 import co.electriccoin.zcash.ui.common.repository.BiometricsCancelledException
 import co.electriccoin.zcash.ui.common.repository.BiometricsFailureException
+import co.electriccoin.zcash.ui.common.repository.KeepKeyProposalRepository
 import co.electriccoin.zcash.ui.common.repository.KeystoneProposalRepository
 import co.electriccoin.zcash.ui.common.repository.MetadataRepository
 import co.electriccoin.zcash.ui.common.repository.SwapRepository
 import co.electriccoin.zcash.ui.common.repository.ZashiProposalRepository
 import co.electriccoin.zcash.ui.design.util.stringRes
+import co.electriccoin.zcash.ui.screen.signkeepkeytransaction.SignKeepKeyTransactionArgs
 import co.electriccoin.zcash.ui.screen.signkeystonetransaction.SignKeystoneTransactionArgs
 import co.electriccoin.zcash.ui.screen.transactionprogress.TransactionProgressArgs
 import kotlinx.coroutines.CoroutineScope
@@ -28,6 +31,7 @@ class SubmitProposalUseCase(
     private val accountDataSource: AccountDataSource,
     private val zashiProposalRepository: ZashiProposalRepository,
     private val keystoneProposalRepository: KeystoneProposalRepository,
+    private val keepKeyProposalRepository: KeepKeyProposalRepository,
     private val biometricRepository: BiometricRepository,
     private val swapRepository: SwapRepository,
     private val metadataRepository: MetadataRepository,
@@ -37,7 +41,7 @@ class SubmitProposalUseCase(
     private val scope = CoroutineScope(Dispatchers.Default + SupervisorJob())
 
     /**
-     * Submit Zashi proposal and navigate to Transaction Progress screen or navigate to Keystone PCZT flow.
+     * Submit proposal and navigate to the appropriate signing screen or Transaction Progress.
      */
     suspend operator fun invoke() {
         try {
@@ -54,6 +58,7 @@ class SubmitProposalUseCase(
             val account = accountDataSource.getSelectedAccount()
             val proposal =
                 when (account) {
+                    is KeepKeyAccount -> keepKeyProposalRepository.getTransactionProposal()
                     is KeystoneAccount -> keystoneProposalRepository.getTransactionProposal()
                     is ZashiAccount -> zashiProposalRepository.getTransactionProposal()
                 }
@@ -65,6 +70,10 @@ class SubmitProposalUseCase(
                 )
             }
             when (account) {
+                is KeepKeyAccount -> {
+                    navigationRouter.replace(SignKeepKeyTransactionArgs)
+                }
+
                 is KeystoneAccount -> {
                     navigationRouter.replace(SignKeystoneTransactionArgs)
                 }

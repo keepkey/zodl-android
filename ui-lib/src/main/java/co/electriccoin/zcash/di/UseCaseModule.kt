@@ -38,6 +38,8 @@ import co.electriccoin.zcash.ui.common.usecase.GetExchangeRateUseCase
 import co.electriccoin.zcash.ui.common.usecase.GetFilteredActivitiesUseCase
 import co.electriccoin.zcash.ui.common.usecase.GetFlexaStatusUseCase
 import co.electriccoin.zcash.ui.common.usecase.GetHomeMessageUseCase
+import co.electriccoin.zcash.ui.common.usecase.GetKeepKeyOrchardFVKUseCase
+import co.electriccoin.zcash.ui.common.usecase.GetKeepKeyStatusUseCase
 import co.electriccoin.zcash.ui.common.usecase.GetKeystoneStatusUseCase
 import co.electriccoin.zcash.ui.common.usecase.GetORSwapQuoteUseCase
 import co.electriccoin.zcash.ui.common.usecase.GetPersistableWalletUseCase
@@ -59,6 +61,7 @@ import co.electriccoin.zcash.ui.common.usecase.GetWalletAccountsUseCase
 import co.electriccoin.zcash.ui.common.usecase.GetWalletRestoringStateUseCase
 import co.electriccoin.zcash.ui.common.usecase.GetWalletSeedBytesUseCase
 import co.electriccoin.zcash.ui.common.usecase.GetZashiAccountUseCase
+import co.electriccoin.zcash.ui.common.usecase.ImportKeepKeyAccountUseCase
 import co.electriccoin.zcash.ui.common.usecase.IsABContactHintVisibleUseCase
 import co.electriccoin.zcash.ui.common.usecase.IsEphemeralAddressLockedUseCase
 import co.electriccoin.zcash.ui.common.usecase.IsRestoreSuccessDialogVisibleUseCase
@@ -199,6 +202,8 @@ val useCaseModule =
         factoryOf(::ObserveZashiAccountUseCase)
         factoryOf(::GetZashiAccountUseCase)
         factoryOf(::CreateKeystoneAccountUseCase)
+        factoryOf(::GetKeepKeyOrchardFVKUseCase)
+        factoryOf(::ImportKeepKeyAccountUseCase)
         factoryOf(::DeriveKeystoneAccountUnifiedAddressUseCase)
         factoryOf(::ParseKeystoneUrToZashiAccountsUseCase)
         factoryOf(::GetExchangeRateUseCase)
@@ -250,6 +255,7 @@ val useCaseModule =
         factoryOf(::RestoreWalletUseCase)
         factoryOf(::NavigateToWalletBackupUseCase)
         factoryOf(::GetKeystoneStatusUseCase)
+        factoryOf(::GetKeepKeyStatusUseCase)
         factoryOf(::GetFlexaStatusUseCase)
         factoryOf(::GetHomeMessageUseCase)
         factoryOf(::OnUserSavedWalletBackupUseCase)

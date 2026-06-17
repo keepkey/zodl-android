@@ -4,6 +4,7 @@ import cash.z.ecc.android.sdk.model.Zatoshi
 import co.electriccoin.zcash.spackle.Twig
 import co.electriccoin.zcash.ui.common.datasource.AccountDataSource
 import co.electriccoin.zcash.ui.common.datasource.MetadataDataSource
+import co.electriccoin.zcash.ui.common.model.KeepKeyAccount
 import co.electriccoin.zcash.ui.common.model.KeystoneAccount
 import co.electriccoin.zcash.ui.common.model.SimpleSwapAsset
 import co.electriccoin.zcash.ui.common.model.SwapAsset
@@ -322,6 +323,7 @@ class MetadataRepositoryImpl(
                     zashiAccount = zashiAccount,
                     ufvk =
                         when (selectedAccount) {
+                            is KeepKeyAccount -> selectedAccount.sdkAccount.ufvk
                             is KeystoneAccount -> selectedAccount.sdkAccount.ufvk
                             is ZashiAccount -> null
                         }

@@ -204,6 +204,13 @@ private class FakeAccountDataSource(
         birthday: BlockHeight?
     ): Account = unsupported()
 
+    override suspend fun importKeepKeyAccount(
+        ufvk: String,
+        seedFingerprint: ByteArray,
+        index: Long,
+        birthday: BlockHeight?
+    ): Account = unsupported()
+
     override suspend fun requestNextShieldedAddress(): WalletAddress.Unified = unsupported()
 
     override suspend fun deleteAccount(account: WalletAccount) = unsupported()

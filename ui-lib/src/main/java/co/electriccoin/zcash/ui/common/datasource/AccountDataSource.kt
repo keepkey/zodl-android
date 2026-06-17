@@ -15,6 +15,7 @@ import cash.z.ecc.android.sdk.model.Zatoshi
 import cash.z.ecc.android.sdk.model.Zip32AccountIndex
 import cash.z.ecc.sdk.extension.ZERO
 import co.electriccoin.zcash.ui.R
+import co.electriccoin.zcash.ui.common.model.KeepKeyAccount
 import co.electriccoin.zcash.ui.common.model.KeystoneAccount
 import co.electriccoin.zcash.ui.common.model.SaplingInfo
 import co.electriccoin.zcash.ui.common.model.TransparentInfo
@@ -77,6 +78,13 @@ interface AccountDataSource {
         birthday: BlockHeight? = null
     ): Account
 
+    suspend fun importKeepKeyAccount(
+        ufvk: String,
+        seedFingerprint: ByteArray,
+        index: Long,
+        birthday: BlockHeight? = null
+    ): Account
+
     suspend fun requestNextShieldedAddress(): WalletAddress.Unified
 
     suspend fun deleteAccount(account: WalletAccount)
@@ -117,6 +125,17 @@ class AccountDataSourceImpl(
                                                 unified = unified,
                                                 transparent = transparent,
                                                 isSelected = isSelected,
+                                            )
+                                        }
+
+                                        KEEPKEY_KEYSOURCE -> {
+                                            KeepKeyAccount(
+                                                sdkAccount = sdkAccount,
+                                                unified = unified,
+                                                transparent = transparent,
+                                                isSelected = isSelected,
+                                                seedFingerprint =
+                                                    sdkAccount.seedFingerprint ?: byteArrayOf(),
                                             )
                                         }
 
@@ -191,6 +210,30 @@ class AccountDataSourceImpl(
                 )
         }
 
+    override suspend fun importKeepKeyAccount(
+        ufvk: String,
+        seedFingerprint: ByteArray,
+        index: Long,
+        birthday: BlockHeight?
+    ): Account =
+        withContext(Dispatchers.IO) {
+            synchronizerProvider
+                .getSynchronizer()
+                .importAccountByUfvk(
+                    AccountImportSetup(
+                        accountName = context.getString(R.string.keepkey_account_name),
+                        keySource = KEEPKEY_KEYSOURCE,
+                        ufvk = UnifiedFullViewingKey(ufvk),
+                        purpose =
+                            AccountPurpose.Spending(
+                                seedFingerprint = seedFingerprint,
+                                zip32AccountIndex = Zip32AccountIndex.new(index)
+                            ),
+                        birthday = birthday,
+                    ),
+                )
+        }
+
     @Suppress("TooGenericExceptionCaught")
     override suspend fun requestNextShieldedAddress(): WalletAddress.Unified {
         var result: WalletAddress.Unified? = null
@@ -236,7 +279,9 @@ class AccountDataSourceImpl(
             .uuid
             .map { uuid ->
                 when (sdkAccount.keySource?.lowercase()) {
-                    KEYSTONE_KEYSOURCE -> sdkAccount.accountUuid == uuid || allAccounts.size == 1
+                    KEYSTONE_KEYSOURCE,
+                    KEEPKEY_KEYSOURCE -> sdkAccount.accountUuid == uuid || allAccounts.size == 1
+
                     else -> uuid == null || sdkAccount.accountUuid == uuid || allAccounts.size == 1
                 }
             }
@@ -246,7 +291,9 @@ class AccountDataSourceImpl(
             log("deriving unified address for ${sdkAccount.accountUuid}")
 
             val addressRequest =
-                if (sdkAccount.keySource?.lowercase() == KEYSTONE_KEYSOURCE) {
+                if (sdkAccount.keySource?.lowercase() == KEYSTONE_KEYSOURCE ||
+                    sdkAccount.keySource?.lowercase() == KEEPKEY_KEYSOURCE
+                ) {
                     UnifiedAddressRequest.Orchard
                 } else {
                     UnifiedAddressRequest.shielded
@@ -317,7 +364,7 @@ class AccountDataSourceImpl(
     }
 
     private fun observeSapling(synchronizer: Synchronizer, sdkAccount: Account): Flow<SaplingInfo?> =
-        if (sdkAccount.keySource == KEYSTONE_KEYSOURCE) {
+        if (sdkAccount.keySource == KEYSTONE_KEYSOURCE || sdkAccount.keySource == KEEPKEY_KEYSOURCE) {
             flowOf(null)
         } else {
             val saplingAddress =
@@ -343,6 +390,7 @@ private data class AddressRequest(
 
 private const val RETRY_DELAY = 3L
 private const val KEYSTONE_KEYSOURCE = "keystone"
+private const val KEEPKEY_KEYSOURCE = "keepkey"
 
 class AccountDeletionException(
     message: String,

@@ -28,6 +28,18 @@ import co.electriccoin.zcash.ui.screen.balances.spendable.SpendableBalanceArgs
 import co.electriccoin.zcash.ui.screen.balances.spendable.SpendableBalanceScreen
 import co.electriccoin.zcash.ui.screen.chooseserver.ChooseServerArgs
 import co.electriccoin.zcash.ui.screen.chooseserver.ChooseServerScreen
+import co.electriccoin.zcash.ui.screen.connectkeepkey.connect.ConnectKeepKeyArgs
+import co.electriccoin.zcash.ui.screen.connectkeepkey.connect.ConnectKeepKeyScreen
+import co.electriccoin.zcash.ui.screen.connectkeepkey.connected.KeepKeyConnectedArgs
+import co.electriccoin.zcash.ui.screen.connectkeepkey.connected.KeepKeyConnectedScreen
+import co.electriccoin.zcash.ui.screen.connectkeepkey.date.KeepKeyDateArgs
+import co.electriccoin.zcash.ui.screen.connectkeepkey.date.KeepKeyFirstTransactionScreen
+import co.electriccoin.zcash.ui.screen.connectkeepkey.estimation.KeepKeyEstimationArgs
+import co.electriccoin.zcash.ui.screen.connectkeepkey.estimation.KeepKeyFirstTransactionEstimationScreen
+import co.electriccoin.zcash.ui.screen.connectkeepkey.height.KeepKeyHeightArgs
+import co.electriccoin.zcash.ui.screen.connectkeepkey.height.KeepKeyWBHScreen
+import co.electriccoin.zcash.ui.screen.connectkeepkey.neworactive.KeepKeyNewOrActiveArgs
+import co.electriccoin.zcash.ui.screen.connectkeepkey.neworactive.KeepKeyNewOrActiveScreen
 import co.electriccoin.zcash.ui.screen.connectkeystone.connect.ConnectKeystoneArgs
 import co.electriccoin.zcash.ui.screen.connectkeystone.connect.ConnectKeystoneScreen
 import co.electriccoin.zcash.ui.screen.connectkeystone.connected.KeystoneConnectedArgs
@@ -135,10 +147,14 @@ import co.electriccoin.zcash.ui.screen.scankeystone.ScanKeystonePCZTRequest
 import co.electriccoin.zcash.ui.screen.scankeystone.ScanKeystoneSignInRequest
 import co.electriccoin.zcash.ui.screen.scankeystone.WrapScanKeystonePCZTRequest
 import co.electriccoin.zcash.ui.screen.scankeystone.WrapScanKeystoneSignInRequest
+import co.electriccoin.zcash.ui.screen.selectkeepkeyaccount.SelectKeepKeyAccountArgs
+import co.electriccoin.zcash.ui.screen.selectkeepkeyaccount.SelectKeepKeyAccountScreen
 import co.electriccoin.zcash.ui.screen.selectkeystoneaccount.AndroidSelectKeystoneAccount
 import co.electriccoin.zcash.ui.screen.selectkeystoneaccount.SelectKeystoneAccount
 import co.electriccoin.zcash.ui.screen.send.Send
 import co.electriccoin.zcash.ui.screen.send.WrapSend
+import co.electriccoin.zcash.ui.screen.signkeepkeytransaction.SignKeepKeyTransactionArgs
+import co.electriccoin.zcash.ui.screen.signkeepkeytransaction.SignKeepKeyTransactionScreen
 import co.electriccoin.zcash.ui.screen.signkeystonetransaction.SignKeystoneTransactionArgs
 import co.electriccoin.zcash.ui.screen.signkeystonetransaction.SignKeystoneTransactionScreen
 import co.electriccoin.zcash.ui.screen.swap.SwapArgs
@@ -274,6 +290,14 @@ fun NavGraphBuilder.walletNavGraph(
                 backStackEntry.arguments?.getInt(NavigationArgs.ADDRESS_TYPE) ?: ReceiveAddressType.Unified.ordinal
             RequestScreen(addressType)
         }
+        composable<ConnectKeepKeyArgs> { ConnectKeepKeyScreen() }
+        composable<KeepKeyNewOrActiveArgs> { KeepKeyNewOrActiveScreen() }
+        composable<KeepKeyDateArgs> { KeepKeyFirstTransactionScreen() }
+        composable<KeepKeyEstimationArgs> { KeepKeyFirstTransactionEstimationScreen(it.toRoute()) }
+        composable<KeepKeyHeightArgs> { KeepKeyWBHScreen() }
+        composable<KeepKeyConnectedArgs> { KeepKeyConnectedScreen() }
+        composable<SelectKeepKeyAccountArgs> { SelectKeepKeyAccountScreen(it.toRoute()) }
+        composable<SignKeepKeyTransactionArgs> { SignKeepKeyTransactionScreen() }
         composable<ConnectKeystoneArgs> { ConnectKeystoneScreen() }
         dialogComposable<KeystoneExplainerScreenArgs> { KeystoneExplainerScreen() }
         composable<KeystoneNewOrActiveArgs> { KeystoneNewOrActiveScreen(it.toRoute()) }

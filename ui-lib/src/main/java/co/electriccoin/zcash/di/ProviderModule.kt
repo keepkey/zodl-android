@@ -25,6 +25,8 @@ import co.electriccoin.zcash.ui.common.provider.IsKeepScreenOnDuringRestoreProvi
 import co.electriccoin.zcash.ui.common.provider.IsKeepScreenOnDuringRestoreProviderImpl
 import co.electriccoin.zcash.ui.common.provider.IsTorEnabledStorageProvider
 import co.electriccoin.zcash.ui.common.provider.IsTorEnabledStorageProviderImpl
+import co.electriccoin.zcash.ui.common.provider.KeepKeyTransportProvider
+import co.electriccoin.zcash.ui.common.provider.KeepKeyTransportProviderImpl
 import co.electriccoin.zcash.ui.common.provider.KeystoneSDKProvider
 import co.electriccoin.zcash.ui.common.provider.KeystoneSDKProviderImpl
 import co.electriccoin.zcash.ui.common.provider.KtorNearApiProvider
@@ -107,6 +109,7 @@ val providerModule =
         singleOf(::EphemeralAddressStorageProviderImpl) bind EphemeralAddressStorageProvider::class
         singleOf(::CMCApiProviderImpl) bind CMCApiProvider::class
         factoryOf(::KeystoneSDKProviderImpl) bind KeystoneSDKProvider::class
+        singleOf(::KeepKeyTransportProviderImpl) bind KeepKeyTransportProvider::class
         singleOf(::VotingCryptoClientImpl) bind VotingCryptoClient::class
         singleOf(::VotingHotkeySeedProviderImpl) bind VotingHotkeySeedProvider::class
         singleOf(::KtorVotingApiProvider) bind VotingApiProvider::class

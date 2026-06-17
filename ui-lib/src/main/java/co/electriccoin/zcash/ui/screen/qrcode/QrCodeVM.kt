@@ -7,6 +7,7 @@ import cash.z.ecc.android.sdk.model.WalletAddress
 import cash.z.ecc.sdk.ANDROID_STATE_FLOW_TIMEOUT
 import co.electriccoin.zcash.ui.NavigationRouter
 import co.electriccoin.zcash.ui.R
+import co.electriccoin.zcash.ui.common.model.KeepKeyAccount
 import co.electriccoin.zcash.ui.common.model.KeystoneAccount
 import co.electriccoin.zcash.ui.common.model.ZashiAccount
 import co.electriccoin.zcash.ui.common.usecase.CopyToClipboardUseCase
@@ -73,6 +74,7 @@ class QrCodeVM(
                         onBack = ::onBack,
                         qrCodeType =
                             when (account) {
+                                is KeepKeyAccount -> QrCodeType.KEYSTONE
                                 is KeystoneAccount -> QrCodeType.KEYSTONE
                                 is ZashiAccount -> QrCodeType.ZASHI
                             }

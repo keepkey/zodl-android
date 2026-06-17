@@ -9,6 +9,7 @@ import co.electriccoin.zcash.ui.R
 import co.electriccoin.zcash.ui.common.datasource.ExactOutputSwapTransactionProposal
 import co.electriccoin.zcash.ui.common.datasource.SendTransactionProposal
 import co.electriccoin.zcash.ui.common.datasource.Zip321TransactionProposal
+import co.electriccoin.zcash.ui.common.model.KeepKeyAccount
 import co.electriccoin.zcash.ui.common.model.KeystoneAccount
 import co.electriccoin.zcash.ui.common.model.WalletAccount
 import co.electriccoin.zcash.ui.common.model.ZashiAccount
@@ -123,6 +124,7 @@ class ReviewTransactionVM(
     ) = ReviewTransactionState(
         title =
             when (selectedWallet) {
+                is KeepKeyAccount -> stringRes(R.string.review_keepkey_transaction_title)
                 is KeystoneAccount -> stringRes(R.string.review_keystone_transaction_title)
                 is ZashiAccount -> stringRes(R.string.send_stage_confirmation_title)
             },
@@ -169,6 +171,7 @@ class ReviewTransactionVM(
             ButtonState(
                 text =
                     when (selectedWallet) {
+                        is KeepKeyAccount -> stringRes(R.string.review_keepkey_transaction_positive)
                         is KeystoneAccount -> stringRes(R.string.review_keystone_transaction_positive)
                         is ZashiAccount -> stringRes(R.string.send_confirmation_send_button)
                     },
@@ -238,6 +241,7 @@ class ReviewTransactionVM(
             ButtonState(
                 text =
                     when (selectedWallet) {
+                        is KeepKeyAccount -> stringRes(R.string.review_keepkey_transaction_positive)
                         is KeystoneAccount -> stringRes(R.string.review_keystone_transaction_positive)
                         is ZashiAccount -> stringRes(R.string.payment_request_send_btn)
                     },

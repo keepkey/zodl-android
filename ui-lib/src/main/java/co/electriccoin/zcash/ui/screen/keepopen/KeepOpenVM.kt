@@ -15,6 +15,7 @@ import co.electriccoin.zcash.ui.design.util.StyledStringStyle
 import co.electriccoin.zcash.ui.design.util.stringRes
 import co.electriccoin.zcash.ui.design.util.styledStringResource
 import co.electriccoin.zcash.ui.screen.common.KeepOpenState
+import co.electriccoin.zcash.ui.screen.connectkeepkey.connected.KeepKeyConnectedArgs
 import co.electriccoin.zcash.ui.screen.connectkeystone.connected.KeystoneConnectedArgs
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -90,6 +91,22 @@ class KeepOpenVM(
                         ),
                 )
             }
+
+            KeepOpenFlow.KEEPKEY -> {
+                KeepOpenState(
+                    description = stringRes(R.string.keep_open_keepkey_description),
+                    subtitle = stringRes(R.string.keep_open_keepkey_subtitle),
+                    disclaimer = getDisclaimer(R.string.keep_open_keepkey_warning),
+                    checkboxLabel = stringRes(R.string.keep_open_keepkey_checkbox),
+                    isChecked = isChecked,
+                    onCheckedChange = { onChecked() },
+                    button =
+                        ButtonState(
+                            text = stringRes(co.electriccoin.zcash.ui.design.R.string.general_ok),
+                            onClick = ::onButtonClick,
+                        ),
+                )
+            }
         }
 
     private fun getDisclaimer(value: Int) =
@@ -104,6 +121,7 @@ class KeepOpenVM(
         when (flow) {
             KeepOpenFlow.RESTORE, KeepOpenFlow.RESYNC -> navigationRouter.backToRoot()
             KeepOpenFlow.KEYSTONE -> navigationRouter.forward(KeystoneConnectedArgs)
+            KeepOpenFlow.KEEPKEY -> navigationRouter.forward(KeepKeyConnectedArgs)
         }
     }
 }

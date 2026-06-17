@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Connect screen -->
+    <string name="connect_keepkey_title">Connect KeepKey</string>
+    <string name="connect_keepkey_subtitle">Plug your KeepKey into this device using a USB OTG cable.</string>
+    <string name="connect_keepkey_item_1">Unlock your KeepKey</string>
+    <string name="connect_keepkey_item_2">Connect via USB OTG cable</string>
+    <string name="connect_keepkey_item_3">Approve the connection on your device</string>
+    <string name="connect_keepkey_item_title">Instructions:</string>
+    <string name="connect_keepkey_positive">Connect KeepKey</string>
+
+    <!-- Connected -->
+    <string name="keepkey_connected_subtitle">KeepKey Connected!</string>
+
+    <!-- Firmware check -->
+    <string name="keepkey_firmware_too_old">Please update your KeepKey firmware to version 7.14.0 or later to use this feature.</string>
+
+    <!-- Seed fingerprint mismatch -->
+    <string name="keepkey_wrong_device">This KeepKey does not match the connected account. Please connect the correct device.</string>
+
+    <!-- Signing -->
+    <string name="keepkey_signing_title">Confirm on KeepKey</string>
+    <string name="keepkey_signing_subtitle">Review and approve the transaction on your KeepKey device.</string>
+    <string name="sign_keepkey_transaction_positive">Sign Transaction</string>
+    <string name="sign_keepkey_transaction_negative">Cancel</string>
+
+    <!-- Errors -->
+    <string name="keepkey_error_not_connected">KeepKey not connected</string>
+    <string name="keepkey_error_permission_denied">USB permission denied. Please allow access to KeepKey.</string>
+    <string name="keepkey_error_signing_failed">Transaction signing failed. Please try again.</string>
+    <string name="keepkey_error_cancelled">Transaction cancelled on device.</string>
+
+    <!-- New or Active Device -->
+    <string name="keepkey_new_or_active_subtitle">New or Active Device?</string>
+    <string name="keepkey_new_or_active_message">Connecting to a KeepKey that was previously connected to Zodl will require synchronization to discover your transaction history. We\'ll guide you through it.</string>
+    <string name="keepkey_new_device_button">Connect new device</string>
+    <string name="keepkey_active_device_button">Connect active device</string>
+
+    <!-- First Transaction (Birthday) -->
+    <string name="keepkey_first_transaction_message">Entering the block height at which your wallet was created ensures that the correct number of blocks will be scanned. If you\'re not sure, choose an earlier date.</string>
+
+    <!-- First Transaction Estimation -->
+    <string name="keepkey_first_transaction_estimation_confirm">Connect</string>
+
+    <!-- Wallet Birthday Height -->
+    <string name="keepkey_wbh_confirm_button">Connect</string>
+
+    <!-- Select KeepKey Account -->
+    <string name="select_keepkey_account_title">Confirm Account to Access</string>
+    <string name="select_keepkey_account_subtitle">Review the KeepKey account before connecting. Once connected, you\'ll be able to sign transactions with your hardware wallet.</string>
+    <string name="select_keepkey_account_default">KeepKey Wallet</string>
+    <string name="select_keepkey_account_positive">Connect</string>
+</resources>

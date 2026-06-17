@@ -6,6 +6,7 @@ import cash.z.ecc.sdk.ANDROID_STATE_FLOW_TIMEOUT
 import co.electriccoin.zcash.ui.NavigationRouter
 import co.electriccoin.zcash.ui.NavigationTargets
 import co.electriccoin.zcash.ui.R
+import co.electriccoin.zcash.ui.common.model.KeepKeyAccount
 import co.electriccoin.zcash.ui.common.model.KeystoneAccount
 import co.electriccoin.zcash.ui.common.model.WalletAccount
 import co.electriccoin.zcash.ui.common.model.ZashiAccount
@@ -83,11 +84,20 @@ class ReceiveVM(
     ) = ReceiveAddressState(
         icon =
             when (account) {
+                is KeepKeyAccount -> co.electriccoin.zcash.ui.design.R.drawable.ic_item_keepkey
                 is KeystoneAccount -> co.electriccoin.zcash.ui.design.R.drawable.ic_item_keystone
                 is ZashiAccount -> R.drawable.ic_zec_round_full
             },
         title =
             when (account) {
+                is KeepKeyAccount -> {
+                    if (type == Unified) {
+                        stringRes(R.string.receive_wallet_address_shielded_keepkey)
+                    } else {
+                        stringRes(R.string.receive_wallet_address_transparent_keepkey)
+                    }
+                }
+
                 is KeystoneAccount -> {
                     if (type == Unified) {
                         stringRes(R.string.receive_wallet_address_shielded_keystone)
@@ -117,6 +127,7 @@ class ReceiveVM(
         isExpanded = isExpanded,
         colorMode =
             when (account) {
+                is KeepKeyAccount -> if (type == Unified) KEYSTONE else DEFAULT
                 is KeystoneAccount -> if (type == Unified) KEYSTONE else DEFAULT
                 is ZashiAccount -> if (type == Unified) ZASHI else DEFAULT
             },
@@ -126,6 +137,7 @@ class ReceiveVM(
                     Sapling,
                     Unified -> {
                         when (account) {
+                            is KeepKeyAccount -> R.drawable.ic_receive_ks_shielded_info
                             is KeystoneAccount -> R.drawable.ic_receive_ks_shielded_info
                             is ZashiAccount -> R.drawable.ic_receive_zashi_shielded_info
                         }

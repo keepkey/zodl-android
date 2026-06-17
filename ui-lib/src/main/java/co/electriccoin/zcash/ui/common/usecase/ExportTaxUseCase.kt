@@ -5,6 +5,7 @@ import cash.z.ecc.android.sdk.model.Zatoshi
 import co.electriccoin.zcash.ui.NavigationRouter
 import co.electriccoin.zcash.ui.R
 import co.electriccoin.zcash.ui.common.datasource.AccountDataSource
+import co.electriccoin.zcash.ui.common.model.KeepKeyAccount
 import co.electriccoin.zcash.ui.common.model.KeystoneAccount
 import co.electriccoin.zcash.ui.common.model.ZashiAccount
 import co.electriccoin.zcash.ui.common.provider.GetVersionInfoProvider
@@ -48,6 +49,7 @@ class ExportTaxUseCase(
                 File(
                     context.cacheDir,
                     when (accountDataSource.getSelectedAccount()) {
+                        is KeepKeyAccount -> "KeepKey_Transaction_History_$previousYear.csv"
                         is KeystoneAccount -> "Keystone_Transaction_History_$previousYear.csv"
                         is ZashiAccount -> "Zodl_Transaction_History_$previousYear.csv"
                     }

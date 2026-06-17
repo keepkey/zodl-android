@@ -6,8 +6,10 @@ import co.electriccoin.zcash.ui.NavigationRouter
 import co.electriccoin.zcash.ui.common.datasource.AccountDataSource
 import co.electriccoin.zcash.ui.common.datasource.InsufficientFundsException
 import co.electriccoin.zcash.ui.common.datasource.TexUnsupportedOnKSException
+import co.electriccoin.zcash.ui.common.model.KeepKeyAccount
 import co.electriccoin.zcash.ui.common.model.KeystoneAccount
 import co.electriccoin.zcash.ui.common.model.ZashiAccount
+import co.electriccoin.zcash.ui.common.repository.KeepKeyProposalRepository
 import co.electriccoin.zcash.ui.common.repository.KeystoneProposalRepository
 import co.electriccoin.zcash.ui.common.repository.ZashiProposalRepository
 import co.electriccoin.zcash.ui.screen.insufficientfunds.InsufficientFundsArgs
@@ -16,6 +18,7 @@ import co.electriccoin.zcash.ui.screen.texunsupported.TEXUnsupportedArgs
 
 class CreateProposalUseCase(
     private val keystoneProposalRepository: KeystoneProposalRepository,
+    private val keepKeyProposalRepository: KeepKeyProposalRepository,
     private val zashiProposalRepository: ZashiProposalRepository,
     private val accountDataSource: AccountDataSource,
     private val navigationRouter: NavigationRouter,
@@ -25,6 +28,10 @@ class CreateProposalUseCase(
         val normalized = if (floor) zecSend.copy(amount = zecSend.amount.floor()) else zecSend
         try {
             when (accountDataSource.getSelectedAccount()) {
+                is KeepKeyAccount -> {
+                    keepKeyProposalRepository.createProposal(normalized)
+                }
+
                 is KeystoneAccount -> {
                     keystoneProposalRepository.createProposal(normalized)
                     keystoneProposalRepository.createPCZTFromProposal()
@@ -37,13 +44,16 @@ class CreateProposalUseCase(
             navigationRouter.forward(ReviewTransactionArgs)
         } catch (_: TexUnsupportedOnKSException) {
             navigationRouter.forward(TEXUnsupportedArgs)
+            keepKeyProposalRepository.clear()
             keystoneProposalRepository.clear()
             zashiProposalRepository.clear()
         } catch (_: InsufficientFundsException) {
+            keepKeyProposalRepository.clear()
             keystoneProposalRepository.clear()
             zashiProposalRepository.clear()
             navigationRouter.forward(InsufficientFundsArgs)
         } catch (e: Exception) {
+            keepKeyProposalRepository.clear()
             keystoneProposalRepository.clear()
             zashiProposalRepository.clear()
             throw e

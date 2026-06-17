@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import co.electriccoin.zcash.ui.NavigationRouter
 import co.electriccoin.zcash.ui.common.datasource.AccountDataSource
+import co.electriccoin.zcash.ui.common.model.KeepKeyAccount
 import co.electriccoin.zcash.ui.common.model.KeystoneAccount
 import co.electriccoin.zcash.ui.common.model.ZashiAccount
 import co.electriccoin.zcash.ui.common.repository.EphemeralAddressRepository
@@ -95,6 +96,7 @@ class DebugVM(
                 accounts.joinToString("\n\n") { account ->
                     val label =
                         when (account) {
+                            is KeepKeyAccount -> "KeepKey"
                             is ZashiAccount -> "Zashi"
                             is KeystoneAccount -> "Keystone"
                         }

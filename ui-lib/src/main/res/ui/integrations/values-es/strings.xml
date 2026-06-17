@@ -11,6 +11,8 @@
     <string name="integrations_flexa_biometric_message">Autentícate para pagar con Flexa</string>
     <string name="integrations_keystone">Conectar Keystone</string>
     <string name="integrations_keystone_subtitle">Conecta una billetera de hardware aislada (air-gapped) para almacenar ZEC protegidos.</string>
+    <string name="integrations_keepkey">Conectar KeepKey</string>
+    <string name="integrations_keepkey_subtitle">Conecta una billetera de hardware USB para almacenar ZEC protegidos.</string>
     <string name="integrations_disabled_info_flexa">Cambia de Keystone a Zodl para usar Flexa.</string>
     <string name="integrations_dialog_more_options">Más opciones</string>
     <string name="integrations_near_swap">Haz swap de %s con NEAR Intents</string>

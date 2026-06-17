@@ -106,6 +106,7 @@ data class ZashiAccount(
 
     override fun compareTo(other: WalletAccount) =
         when (other) {
+            is KeepKeyAccount -> 1
             is KeystoneAccount -> 1
             is ZashiAccount -> 0
         }
@@ -142,9 +143,60 @@ data class KeystoneAccount(
 
     override fun compareTo(other: WalletAccount) =
         when (other) {
+            is KeepKeyAccount -> 0
             is KeystoneAccount -> 0
             is ZashiAccount -> -1
         }
+}
+
+data class KeepKeyAccount(
+    override val sdkAccount: Account,
+    override val unified: UnifiedInfo,
+    override val transparent: TransparentInfo,
+    override val isSelected: Boolean,
+    val seedFingerprint: ByteArray,
+) : WalletAccount {
+    override val icon: Int
+        get() = R.drawable.ic_item_keepkey
+
+    override val name: StringResource
+        get() = stringRes(co.electriccoin.zcash.ui.R.string.keepkey_account_name)
+
+    override val sapling: SaplingInfo? = null
+
+    override val totalBalance: Zatoshi
+        get() = unified.balance.total + transparent.balance
+
+    override val totalShieldedBalance: Zatoshi
+        get() = unified.balance.total
+
+    override val totalTransparentBalance: Zatoshi
+        get() = transparent.balance
+
+    override val spendableShieldedBalance: Zatoshi
+        get() = unified.balance.available
+
+    override val pendingShieldedBalance: Zatoshi
+        get() = unified.balance.changePending + unified.balance.valuePending
+
+    override fun compareTo(other: WalletAccount) =
+        when (other) {
+            is KeepKeyAccount -> 0
+            is KeystoneAccount -> 0
+            is ZashiAccount -> -1
+        }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is KeepKeyAccount) return false
+        return sdkAccount == other.sdkAccount && seedFingerprint.contentEquals(other.seedFingerprint)
+    }
+
+    override fun hashCode(): Int {
+        var result = sdkAccount.hashCode()
+        result = 31 * result + seedFingerprint.contentHashCode()
+        return result
+    }
 }
 
 data class UnifiedInfo(

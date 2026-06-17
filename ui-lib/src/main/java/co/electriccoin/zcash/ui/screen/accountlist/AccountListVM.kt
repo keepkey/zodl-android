@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import cash.z.ecc.sdk.ANDROID_STATE_FLOW_TIMEOUT
 import co.electriccoin.zcash.ui.NavigationRouter
+import co.electriccoin.zcash.ui.common.model.KeepKeyAccount
 import co.electriccoin.zcash.ui.common.model.KeystoneAccount
 import co.electriccoin.zcash.ui.common.model.WalletAccount
 import co.electriccoin.zcash.ui.common.model.ZashiAccount
@@ -15,7 +16,7 @@ import co.electriccoin.zcash.ui.design.component.listitem.ListItemState
 import co.electriccoin.zcash.ui.design.util.stringRes
 import co.electriccoin.zcash.ui.design.util.stringResByAddress
 import co.electriccoin.zcash.ui.screen.ExternalUrl
-import co.electriccoin.zcash.ui.screen.connectkeystone.connect.ConnectKeystoneArgs
+import co.electriccoin.zcash.ui.screen.integrations.IntegrationsArgs
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.WhileSubscribed
 import kotlinx.coroutines.flow.map
@@ -44,6 +45,7 @@ class AccountListVM(
                                         subtitle = stringResByAddress(account.unified.address.address),
                                         icon =
                                             when (account) {
+                                                is KeepKeyAccount -> R.drawable.ic_item_keepkey
                                                 is KeystoneAccount -> R.drawable.ic_item_keystone
                                                 is ZashiAccount -> R.drawable.ic_item_zashi
                                             },
@@ -79,7 +81,7 @@ class AccountListVM(
                             text = stringRes(co.electriccoin.zcash.ui.R.string.account_list_keystone_primary),
                             onClick = ::onAddWalletButtonClicked
                         ).takeIf {
-                            accounts.orEmpty().none { it is KeystoneAccount }
+                            accounts.orEmpty().none { it is KeystoneAccount || it is KeepKeyAccount }
                         }
                 )
             }.stateIn(
@@ -96,7 +98,7 @@ class AccountListVM(
             selectWalletAccount(account)
         }
 
-    private fun onAddWalletButtonClicked() = navigationRouter.forward(ConnectKeystoneArgs)
+    private fun onAddWalletButtonClicked() = navigationRouter.forward(IntegrationsArgs)
 
     private fun onBack() = navigationRouter.back()
 }
